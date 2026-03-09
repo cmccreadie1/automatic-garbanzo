@@ -74,7 +74,7 @@
         <div class="text-center">
             <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
             <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-            <div class="text-slate-500 font-bold text-sm tracking-widest">v1.1</div>
+            <div class="text-slate-500 font-bold text-sm tracking-widest">v1.2</div>
         </div>
         
         <div class="w-full max-w-sm space-y-4 pt-4">
@@ -101,6 +101,12 @@
     </div>
 
     <div id="view-join" class="hidden flex-1 flex flex-col p-4 bg-slate-900">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-4 pt-2">
+            <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 class="text-xl font-bold">Join Match</h2>
+            <div class="w-6"></div>
+        </div>
+
         <div class="text-center pt-8 pb-4">
             <h2 class="text-amber font-bold text-xl mb-2">ENTER MATCH PIN</h2>
             <div class="flex justify-center space-x-2">
@@ -130,7 +136,7 @@
 
     <div id="view-host" class="hidden flex-1 flex flex-col p-6 space-y-6">
         <div class="flex justify-between items-center border-b border-slate-700 pb-4">
-            <button onclick="navTo('home')" class="text-slate-400 text-2xl"><i class="fa-solid fa-arrow-left"></i></button>
+            <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
             <h2 class="text-xl font-bold">Match Setup</h2>
             <div class="w-6"></div>
         </div>
@@ -151,19 +157,26 @@
         </div>
     </div>
 
-    <div id="view-waiting" class="hidden flex-1 flex flex-col p-6 justify-center items-center text-center space-y-8">
-        <h2 class="text-slate-400 font-bold uppercase tracking-widest text-sm">Room PIN</h2>
-        <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
-        
-        <div id="hostControls" class="hidden w-full max-w-sm pt-8">
-            <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Waiting for anglers...</p>
-            <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
-                🚨 START MATCH NOW
-            </button>
+    <div id="view-waiting" class="hidden flex-1 flex flex-col p-6 space-y-8">
+        <div class="flex justify-between items-center w-full">
+            <button onclick="exitWaitingRoom()" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+            <div class="w-6"></div>
         </div>
-        <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
-            <p class="text-xl font-bold text-slate-300">Waiting for Marshal to blow the whistle...</p>
-            <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
+
+        <div class="flex-1 flex flex-col justify-center items-center text-center space-y-8">
+            <h2 class="text-slate-400 font-bold uppercase tracking-widest text-sm">Room PIN</h2>
+            <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
+            
+            <div id="hostControls" class="hidden w-full max-w-sm pt-8">
+                <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Waiting for anglers...</p>
+                <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
+                    🚨 START MATCH NOW
+                </button>
+            </div>
+            <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
+                <p class="text-xl font-bold text-slate-300">Waiting for Marshal to blow the whistle...</p>
+                <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
+            </div>
         </div>
     </div>
 
@@ -266,6 +279,17 @@
         </div>
     </div>
 
+    <div id="view-history" class="hidden flex-1 flex flex-col p-6 space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+            <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 class="text-xl font-bold">Match History</h2>
+            <div class="w-6"></div>
+        </div>
+        <div class="flex-1 flex items-center justify-center">
+            <p class="text-slate-500 text-center">No past matches found in the local vault.</p>
+        </div>
+    </div>
+
     <div id="leaderboardDrawer" class="drawer fixed inset-y-0 right-0 w-full md:w-96 bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl">
         
         <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-black py-5 uppercase tracking-widest text-sm shadow-md flex justify-center items-center active:bg-slate-600">
@@ -363,14 +387,20 @@
             navigator.serviceWorker.register('service-worker.js');
         }
 
-        // Ghost Boot: Load on start
+        /* -------------------------------------------------------------------------- */
+        /* HARDWARE BACK BUTTON HIJACKING & PERSISTENCE                               */
+        /* -------------------------------------------------------------------------- */
         window.onload = () => {
+            // Hijack the back button immediately
+            history.pushState(null, null, window.location.href);
+
             const saved = localStorage.getItem('matchState');
             if (saved) {
                 try {
                     state = JSON.parse(saved);
                     document.getElementById('playerName').value = state.name || "";
-                    // If in middle of match, jump straight to fishing view
+                    
+                    // Route user to their exact saved state
                     if (state.status === 'playing' || state.status === 'grace') {
                         navTo('fishing');
                         renderCatchList();
@@ -378,8 +408,19 @@
                         if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
                     } else if (state.status === 'finished') {
                         navTo('results');
+                    } else if (state.status === 'waiting' || state.view === 'waiting') {
+                        document.getElementById('displayPin').innerText = state.pin;
+                        if(state.isHost) {
+                            document.getElementById('hostControls').classList.remove('hidden');
+                            document.getElementById('joinerWaitingText').classList.add('hidden');
+                        } else {
+                            document.getElementById('hostControls').classList.add('hidden');
+                            document.getElementById('joinerWaitingText').classList.remove('hidden');
+                        }
+                        navTo('waiting');
+                    } else if (state.view === 'host' || state.view === 'join' || state.view === 'history') {
+                        navTo(state.view);
                     } else {
-                        // For safety, force reset to home if state is weirdly stuck
                         state.status = 'idle';
                         navTo('home');
                     }
@@ -392,6 +433,26 @@
             }
         };
 
+        window.addEventListener('popstate', function(event) {
+            // Taming the physical back button
+            if (state.view === 'fishing' || state.status === 'playing') {
+                if (confirm("Are you sure you want to exit the match? You can return via Ghost Boot.")) {
+                    window.history.back(); // Actually exit
+                } else {
+                    history.pushState(null, null, window.location.href); // Trap them again
+                }
+            } else if (state.view !== 'home') {
+                navTo('home');
+                history.pushState(null, null, window.location.href); // Send to lobby
+            } else {
+                if (confirm("Are you sure you want to exit the app?")) {
+                    window.history.back(); // Actually exit
+                } else {
+                    history.pushState(null, null, window.location.href); // Trap them again
+                }
+            }
+        });
+
         function saveState() {
             localStorage.setItem('matchState', JSON.stringify(state));
         }
@@ -403,17 +464,14 @@
             const spinner = document.getElementById('updateSpinner');
             spinner.classList.add('fa-spin');
             
-            // Clear out local storage to fix any stuck "Host" button issues
             localStorage.removeItem('matchState');
             
-            // Clear Service Worker Cache to pull fresh GitHub files
             if ('caches' in window) {
                 caches.keys().then((names) => {
                     names.forEach(name => { caches.delete(name); })
                 });
             }
             
-            // Hard reload after 1 second
             setTimeout(() => {
                 window.location.reload(true);
             }, 1000);
@@ -427,6 +485,14 @@
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
             state.view = viewId;
             saveState();
+        }
+
+        function exitWaitingRoom() {
+            if (confirm("Leave the waiting room?")) {
+                state.status = 'idle';
+                state.pin = '';
+                navTo('home');
+            }
         }
 
         /* ATM Pad Logic */
