@@ -112,7 +112,7 @@
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.6</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.7</div>
             </div>
             
             <div class="w-full max-w-sm space-y-4 pt-4">
@@ -208,25 +208,30 @@
             </div>
         </div>
 
-        <div id="view-waiting" class="hidden view-frame p-6 space-y-8">
+        <div id="view-waiting" class="hidden view-frame p-6 space-y-4">
             <div class="flex justify-between items-center w-full">
                 <button onclick="exitWaitingRoom()" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-                <div class="w-6"></div>
+                <div class="text-amber font-black tracking-widest bg-slate-800 px-4 py-2 rounded-lg border border-slate-600" id="displayPin">0000</div>
             </div>
 
-            <div class="flex-1 flex flex-col justify-center items-center text-center space-y-8">
-                <h2 class="text-slate-400 font-bold uppercase tracking-widest text-sm">Room PIN</h2>
-                <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
+            <div class="flex-1 flex flex-col items-center space-y-6">
+                <div class="text-center pt-4">
+                    <h2 class="text-slate-400 font-bold uppercase tracking-widest text-xs">Waiting Room</h2>
+                    <h3 class="text-2xl font-black text-white mt-1">Live Attendance</h3>
+                </div>
+
+                <div id="attendanceList" class="w-full max-w-sm flex-1 bg-slate-800/50 rounded-2xl border-2 border-slate-700 p-4 space-y-2 overflow-y-auto">
+                    <p class="text-slate-500 text-center italic py-10">Waiting for anglers to join...</p>
+                </div>
                 
-                <div id="hostControls" class="hidden w-full max-w-sm pt-8">
-                    <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Cloud Synced & Ready</p>
-                    <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
+                <div id="hostControls" class="hidden w-full max-w-sm pb-6">
+                    <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse shadow-[0_0_20px_rgba(220,38,38,0.3)]">
                         🚨 START MATCH NOW
                     </button>
                 </div>
-                <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
-                    <p class="text-xl font-bold text-slate-300">Connected to Cloud. Waiting for Marshal to start...</p>
-                    <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
+                <div id="joinerWaitingText" class="w-full max-w-sm pb-6 text-center">
+                    <p class="text-lg font-bold text-slate-300">Connected. Marshal starting soon...</p>
+                    <i class="fa-solid fa-spinner fa-spin text-2xl text-amber mt-4"></i>
                 </div>
             </div>
         </div>
@@ -448,12 +453,14 @@
             graceEndTime: null,
             myCatches: [],
             editingId: null,
-            status: 'idle' 
+            status: 'idle',
+            hypeStartTime: null
         };
 
         let matchRef = null;
         let globalMatchData = null;
         let clockInterval;
+        let countdownActive = false;
         let warningPlayed = false;
 
         window.navTo = navTo;
@@ -534,7 +541,7 @@
                 return;
             }
             if (state.view === 'fishing' || state.status === 'playing') {
-                if (confirm("Exit match? Use icon to return.")) window.history.back(); 
+                if (confirm("Exit match? Standings remain saved in cloud.")) window.history.back(); 
                 else history.pushState(null, null, window.location.href); 
             } else if (state.view !== 'home') {
                 navTo('home');
@@ -589,8 +596,8 @@
                     globalMatchData = snapshot.val();
                     processCloudUpdate();
                 } else {
-                    if(state.status === 'waiting' || state.status === 'playing' || state.status === 'grace') {
-                        alert("Room deleted.");
+                    if(state.status === 'waiting' || state.status === 'playing' || state.status === 'grace' || state.status === 'hype') {
+                        alert("Room closed.");
                         resetApp();
                     }
                 }
@@ -598,12 +605,33 @@
         }
 
         function processCloudUpdate() {
-            if (state.status === 'waiting' && globalMatchData.status === 'playing') {
+            // 1. LIVE ATTENDANCE RENDERING (LOBBY)
+            if (state.view === 'waiting' && globalMatchData.anglers) {
+                const list = document.getElementById('attendanceList');
+                let anglers = Object.values(globalMatchData.anglers);
+                list.innerHTML = anglers.map(a => `
+                    <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 flex justify-between items-center animate-fade-in">
+                        <span class="font-bold text-white"><i class="fa-solid fa-user-check text-green-400 mr-2"></i> ${a.name}</span>
+                        <span class="text-xs text-slate-400 font-black uppercase">Ready</span>
+                    </div>
+                `).join('');
+                if(anglers.length === 0) list.innerHTML = '<p class="text-slate-500 text-center italic py-10">Waiting for anglers to join...</p>';
+            }
+
+            // 2. GLOBAL COUNTDOWN HANDLER
+            if (globalMatchData.status === 'hype' && !countdownActive) {
+                state.hypeStartTime = globalMatchData.hypeStartTime;
+                state.endTime = globalMatchData.endTime;
+                runGlobalCountdown();
+            }
+
+            // 3. MATCH STATE SYNC
+            if (state.status === 'hype' && globalMatchData.status === 'playing') {
                 state.endTime = globalMatchData.endTime;
                 state.format = globalMatchData.format; 
                 beginFishing(false); 
             }
-            if ((state.status === 'playing' || state.status === 'waiting') && globalMatchData.status === 'grace') {
+            if ((state.status === 'playing' || state.status === 'waiting' || state.status === 'hype') && globalMatchData.status === 'grace') {
                 state.graceEndTime = globalMatchData.graceEndTime;
                 state.endTime = globalMatchData.endTime; 
                 state.status = 'grace';
@@ -619,6 +647,7 @@
             if (globalMatchData.hostId === uid && !state.isHost) {
                 state.isHost = true;
                 if(state.status === 'playing') document.getElementById('btnMarshalPanel').classList.remove('hidden');
+                alert("You are now the Marshal!");
             } else if (globalMatchData.hostId !== uid && state.isHost) {
                 state.isHost = false;
                 document.getElementById('btnMarshalPanel').classList.add('hidden');
@@ -647,7 +676,8 @@
                 hostId: uid,
                 format: state.format,
                 status: 'waiting',
-                createdAt: Date.now()
+                createdAt: Date.now(),
+                anglers: { [uid]: { name: state.name, score: 0 } }
             }).then(() => {
                 listenToMatchCloud();
                 document.getElementById('displayPin').innerText = state.pin;
@@ -667,6 +697,7 @@
                     let data = snapshot.val();
                     state.format = data.format;
                     listenToMatchCloud();
+                    update(ref(db, `matches/${state.pin}/anglers/${uid}`), { name: state.name, score: 0 });
                     document.getElementById('displayPin').innerText = state.pin;
                     document.getElementById('hostControls').classList.add('hidden');
                     document.getElementById('joinerWaitingText').classList.remove('hidden');
@@ -713,13 +744,28 @@
             setTimeout(() => playSyntheticTone(600, 'square', 0.4), 300);
         }
 
+        // MARSHAL TRIGGERS HYPE
         function triggerHypeStart() {
+            if(!state.isHost) return;
             let dur = parseFloat(document.getElementById('hostDuration').value || 4);
-            state.endTime = Date.now() + (dur * 60 * 60 * 1000);
+            let endTime = Date.now() + (dur * 60 * 60 * 1000) + 11000; // Offset for 10s countdown
+            update(ref(db, 'matches/' + state.pin), {
+                status: 'hype',
+                hypeStartTime: Date.now(),
+                endTime: endTime
+            });
+        }
+
+        // EVERYONE RUNS THIS
+        function runGlobalCountdown() {
+            countdownActive = true;
+            state.status = 'hype';
             navTo('hype');
+            
             let count = 10;
             document.getElementById('hypeCount').innerText = count;
             playSyntheticTone(400, 'sine', 0.1);
+
             let hypeInterval = setInterval(() => {
                 count--;
                 if (count > 0) {
@@ -728,7 +774,8 @@
                 } else {
                     clearInterval(hypeInterval);
                     playHorn();
-                    beginFishing(true); 
+                    countdownActive = false;
+                    if(state.isHost) update(ref(db, 'matches/' + state.pin), { status: 'playing' });
                 }
             }, 1000);
         }
@@ -736,7 +783,6 @@
         function beginFishing(isPushing) {
             state.status = 'playing';
             if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
-            if (isPushing && state.isHost) update(ref(db, 'matches/' + state.pin), { status: 'playing', endTime: state.endTime });
             pushMyScoreToCloud();
             let label = document.getElementById('labelSize');
             if (state.format.includes('weight')) label.innerText = "Weight";
@@ -753,7 +799,7 @@
                 let now = Date.now();
                 let rem = state.endTime - now;
                 if (state.status === 'playing') {
-                    if (rem <= 1200000 && !warningPlayed) { playWarningBeep(); warningPlayed = true; document.getElementById('statusBanner').classList.replace('hidden', 'flex'); }
+                    if (rem <= 1200000 && !warningPlayed) { playWarningBeep(); warningPlayed = true; document.getElementById('statusBanner').classList.remove('hidden'); }
                     if (rem <= 0) { playHorn(); state.status = 'grace'; if(!state.graceEndTime) state.graceEndTime = Date.now() + 600000; saveState(); }
                     else updateTimerDisplay(rem);
                 } else if (state.status === 'grace') {
@@ -765,7 +811,7 @@
         }
 
         function updateTimerDisplay(ms) {
-            let s = Math.floor(ms / 1000);
+            let s = Math.max(0, Math.floor(ms / 1000));
             let h = Math.floor(s / 3600);
             let m = Math.floor((s % 3600) / 60);
             let sec = s % 60;
@@ -789,7 +835,7 @@
                 state.editingId = null;
                 document.getElementById('btnRecord').innerText = "RECORD CATCH";
             } else {
-                state.myCatches.unshift({ id: Date.now().toString(), species: sp, size: sz, points: pts, time: new Date().toLocaleTimeString() });
+                state.myCatches.unshift({ id: Date.now().toString(), species: sp, size: sz, points: pts, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) });
             }
             document.getElementById('inputSpecies').value = "";
             document.getElementById('inputSize').value = "";
@@ -827,7 +873,11 @@
         function renderGlobalLeaderboard() {
             if(!globalMatchData?.anglers) return;
             let arr = Object.values(globalMatchData.anglers).sort((a,b) => b.score - a.score);
-            document.getElementById('leaderboardList').innerHTML = arr.map((a,i) => `<div class="bg-slate-800 p-3 rounded-lg border border-slate-700 border-l-4 ${i===0?'border-l-amber':'border-l-slate-600'} flex justify-between items-center mt-2"><div><span class="font-bold ${i===0?'text-amber':'text-slate-400'}">${i+1}</span><span class="font-bold ml-2 text-white">${a.name}</span></div><div class="font-black text-white">${a.score}</div></div>`).join('');
+            document.getElementById('leaderboardList').innerHTML = arr.map((a,i) => `
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 border-l-4 ${i===0?'border-l-amber':'border-l-slate-600'} flex justify-between items-center mt-2">
+                    <div><span class="font-bold ${i===0?'text-amber':'text-slate-400'}">${i+1}</span><span class="font-bold ml-2 text-white">${a.name}</span></div>
+                    <div class="font-black text-2xl text-white">${a.score}</div>
+                </div>`).join('');
             if(state.format !== 'speciesHunt') {
                 let bs = 0, bstr = "Waiting...";
                 arr.forEach(a => { if(a.catches) a.catches.forEach(c => { if(c.size > bs) { bs = c.size; bstr = `${a.name} - ${c.size} ${c.species}`; } })});
@@ -835,63 +885,115 @@
             }
         }
 
-        // --- REINFORCED MARSHAL CONTROLS ---
-        function adjustClock(m) {
-            if(!state.isHost || !state.pin) return;
-            const refClock = ref(db, 'matches/' + state.pin);
-            update(refClock, { endTime: state.endTime + (m * 60 * 1000) })
-                .then(() => console.log("Clock Synced"))
-                .catch(e => alert("Cloud Sync Failed: " + e.message));
-        }
-
-        function showLatecomerPin() { alert(`Match PIN: ${state.pin}`); }
-        
+        function adjustClock(m) { if(state.isHost) update(ref(db, 'matches/' + state.pin), { endTime: state.endTime + (m * 60 * 1000) }); }
+        function showLatecomerPin() { alert(`PIN: ${state.pin}`); }
         function transferMarshal() {
-            if (!globalMatchData?.anglers || !state.pin) return;
+            if (!globalMatchData?.anglers) return;
             let opts = Object.entries(globalMatchData.anglers).filter(([k]) => k !== uid).map(([k,v]) => ({id:k, name:v.name}));
             if(opts.length === 0) return alert("No others online.");
             let c = prompt("Choose Marshal:\n" + opts.map((o,i) => `${i+1}: ${o.name}`).join("\n"));
-            if (c > 0 && c <= opts.length) {
-                update(ref(db, 'matches/' + state.pin), { hostId: opts[c-1].id });
-            }
+            if (c > 0 && c <= opts.length) update(ref(db, 'matches/' + state.pin), { hostId: opts[c-1].id });
         }
-
-        function endMatchEarly(grace) {
-            if(!state.isHost || !state.pin) return;
-            const refEnd = ref(db, 'matches/' + state.pin);
-            document.getElementById('marshalDrawer').classList.remove('open');
-            
-            if(grace) {
-                // Wrap Up Early: Trigger Grace Mode immediately
-                update(refEnd, { 
-                    status: 'grace', 
-                    endTime: Date.now(), 
-                    graceEndTime: Date.now() + 600000 
-                }).catch(e => alert("Sync Failed: " + e.message));
-            } else {
-                // Abort Match: Total Shutdown
-                update(refEnd, { status: 'finished' })
-                    .catch(e => alert("Sync Failed: " + e.message));
-            }
-        }
-
-        function leaveMatchEarly() { if(confirm("Leave?")) { saveToHistory(true); resetApp(); } }
+        function endMatchEarly(grace) { if(!state.isHost) return; if(grace) update(ref(db, 'matches/' + state.pin), { status: 'grace', endTime: Date.now(), graceEndTime: Date.now() + 600000 }); else update(ref(db, 'matches/' + state.pin), { status: 'finished' }); }
+        function leaveMatchEarly() { if (confirm("Leave?")) { saveToHistory(true); resetApp(); } }
 
         function lockdownMatch(isH) { 
             clearInterval(clockInterval); 
             if(isH && state.isHost && state.pin) update(ref(db, 'matches/' + state.pin), { status: 'finished' }); 
+            
             saveToHistory(false); 
             state.status = 'finished'; 
             saveState(); 
+            
             let fs = state.myCatches.reduce((s,c) => s+c.points,0);
             document.getElementById('finalScore').innerText = fs; 
             document.getElementById('finalCount').innerText = state.myCatches.length; 
             navTo('results'); 
         }
 
-        function saveToHistory(l) { let h = JSON.parse(localStorage.getItem('matchHistory') || '[]'); let id = state.pin + '_' + state.endTime; let rec = { id, pin: state.pin, date: new Date().toLocaleDateString(), format: state.format, score: state.myCatches.reduce((s,c) => s+c.points,0), fishCount: state.myCatches.length, isLive: l, catches: [...state.myCatches], playerName: state.name }; let idx = h.findIndex(m => m.id === id); if(idx>=0) h[idx]=rec; else h.unshift(rec); localStorage.setItem('matchHistory', JSON.stringify(h)); }
-        function renderHistory() { let h = JSON.parse(localStorage.getItem('matchHistory') || '[]'); let c = document.getElementById('historyListContainer'); if(h.length === 0) { c.innerHTML = '<p class="text-slate-500 text-center pt-10">Vault empty.</p>'; return; } c.innerHTML = h.map(m => `<div onclick="viewHistoricalLeaderboard('${m.id}')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center cursor-pointer"><div><span class="font-black text-white">${m.date}</span><br><span class="text-xs text-slate-400">PIN: ${m.pin}</span></div><div class="text-right text-2xl font-black text-white">${m.score}</div></div>`).join(''); }
-        function viewHistoricalLeaderboard(id) { let h = JSON.parse(localStorage.getItem('matchHistory') || '[]'); let m = h.find(x => x.id === id); if(m) { document.getElementById('leaderboardTitle').innerHTML = 'PAST LOG'; document.getElementById('leaderboardList').innerHTML = `<div class="bg-slate-800 p-3 rounded-lg border-l-4 border-l-amber flex justify-between items-center mt-2"><div><span class="font-bold text-white">${m.playerName}</span></div><div class="font-black text-white">${m.score}</div></div>`; document.getElementById('leaderboardDrawer').classList.add('open'); } }
+        function saveToHistory(isLive) { 
+            let history = JSON.parse(localStorage.getItem('matchHistory') || '[]'); 
+            let matchId = state.pin + '_' + state.endTime; 
+            
+            // Capture full leaderboard from globalMatchData before saving
+            let standings = [];
+            if(globalMatchData?.anglers) {
+                standings = Object.values(globalMatchData.anglers).sort((a,b) => b.score - a.score);
+            }
+
+            let record = { 
+                id: matchId, 
+                pin: state.pin, 
+                date: new Date().toLocaleDateString(), 
+                format: state.format, 
+                score: state.myCatches.reduce((s,c) => s+c.points,0), 
+                fishCount: state.myCatches.length, 
+                isLive: isLive, 
+                personalCatches: [...state.myCatches], 
+                standings: standings,
+                playerName: state.name 
+            }; 
+
+            let idx = history.findIndex(m => m.id === matchId); 
+            if(idx>=0) history[idx]=record; else history.unshift(record); 
+            localStorage.setItem('matchHistory', JSON.stringify(history)); 
+        }
+
+        function renderHistory() { 
+            let h = JSON.parse(localStorage.getItem('matchHistory') || '[]'); 
+            let c = document.getElementById('historyListContainer'); 
+            if(h.length === 0) { c.innerHTML = '<p class="text-slate-500 text-center pt-10">Vault empty.</p>'; return; } 
+            c.innerHTML = h.map(m => `
+                <div onclick="viewHistoricalLeaderboard('${m.id}')" class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex justify-between items-center cursor-pointer shadow-lg active:bg-slate-700 transition">
+                    <div>
+                        <span class="font-black text-white">${m.date}</span><br>
+                        <span class="text-xs text-slate-400">PIN: ${m.pin} | ${m.standings.length} Anglers</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-2xl font-black text-amber">${m.score}</div>
+                        <div class="text-xs text-slate-500 font-bold uppercase">Points</div>
+                    </div>
+                </div>`).join(''); 
+        }
+
+        function viewHistoricalLeaderboard(id) { 
+            let h = JSON.parse(localStorage.getItem('matchHistory') || '[]'); 
+            let m = h.find(x => x.id === id); 
+            if(m) { 
+                document.getElementById('leaderboardTitle').innerHTML = '<i class="fa-solid fa-book-bookmark text-amber mr-2"></i> MATCH RECORD'; 
+                
+                let boardHtml = `
+                    <div class="mb-6">
+                        <h4 class="text-slate-500 text-xs font-black uppercase tracking-widest mb-3">Final Standings</h4>
+                        ${m.standings.map((a,i) => `
+                            <div class="bg-slate-800 p-3 rounded-lg border-l-4 ${i===0?'border-l-amber':'border-l-slate-600'} flex justify-between items-center mb-2">
+                                <div><span class="font-bold text-slate-400 mr-2">${i+1}</span><span class="font-bold text-white">${a.name}</span></div>
+                                <div class="font-black text-white">${a.score}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <hr class="border-slate-700 my-6">
+                    <div>
+                        <h4 class="text-slate-500 text-xs font-black uppercase tracking-widest mb-3">Your Catch Diary</h4>
+                        ${m.personalCatches.map(c => `
+                            <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center mb-2">
+                                <div>
+                                    <span class="font-bold text-white">${c.species}</span><br>
+                                    <span class="text-xs text-slate-400">${c.time}</span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="font-bold text-slate-200">${c.size || ''}</span><br>
+                                    <span class="text-xs text-slate-500">${c.points} Pts</span>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                document.getElementById('leaderboardList').innerHTML = boardHtml; 
+                document.getElementById('leaderboardDrawer').classList.add('open'); 
+            } 
+        }
+
         let wl = null; async function toggleWakeLock() { if(wl) { await wl.release(); wl=null; } else { try { wl = await navigator.wakeLock.request('screen'); } catch(e){} } }
         function shareResults() { let fs = document.getElementById('finalScore').innerText; let t = `🎣 Results: ${state.name} scored ${fs}!`; navigator.share ? navigator.share({ title: 'Results', text: t }) : window.open(`https://wa.me/?text=${encodeURIComponent(t)}`); }
         function resetApp() { localStorage.removeItem('matchState'); state.status = 'idle'; location.reload(); }
