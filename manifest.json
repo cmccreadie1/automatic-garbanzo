@@ -1,19 +1,20 @@
 {
   "name": "Sea Diary: Match Edition",
   "short_name": "Match App",
-  "start_url": "./index.html",
+  "start_url": "/competition-Scorer/index.html",
+  "scope": "/competition-Scorer/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f172a",
   "theme_color": "#0f172a",
   "icons": [
     {
-      "src": "./icon.png",
+      "src": "/competition-Scorer/icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "./icon.png",
+      "src": "/competition-Scorer/icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }
