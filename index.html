@@ -9,15 +9,36 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body {
+        
+        /* AGGRESSIVE PULL-TO-REFRESH KILLER & PORTRAIT LOCK */
+        html, body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a; 
             color: #ffffff;
             -webkit-user-select: none;
             user-select: none;
-            overflow-x: hidden;
-            overscroll-behavior-y: none; 
+            width: 100%;
+            height: 100%;
+            position: fixed; /* Bolts the body to the viewport */
+            overflow: hidden; /* Prevents any native bouncing */
+            overscroll-behavior: none;
+            touch-action: none; /* Disables browser gestures on the background */
         }
+
+        /* Allow scrolling only inside specific containers */
+        .scrollable-area {
+            overflow-y: auto;
+            touch-action: pan-y;
+            overscroll-behavior-y: contain;
+        }
+
+        /* LANDSCAPE BOUNCER */
+        #landscape-warning { display: none; }
+        @media screen and (orientation: landscape) {
+            #app-container { display: none !important; }
+            #landscape-warning { display: flex !important; }
+        }
+
         .text-amber { color: #f59e0b; }
         .bg-amber { background-color: #f59e0b; }
         
@@ -73,327 +94,334 @@
         .hidden { display: none !important; }
     </style>
 </head>
-<body class="h-screen w-screen flex flex-col">
+<body>
 
-    <div id="view-home" class="flex-1 flex flex-col p-6 items-center justify-center space-y-6">
-        <div class="text-center">
-            <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
-            <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-            <div class="text-slate-500 font-bold text-sm tracking-widest">v1.5</div>
-        </div>
-        
-        <div class="w-full max-w-sm space-y-4 pt-4">
-            <input type="text" id="playerName" placeholder="Enter Your Name" class="w-full bg-slate-800 border-2 border-slate-600 text-white font-bold text-xl rounded-xl p-4 text-center focus:border-amber focus:outline-none">
+    <div id="landscape-warning" class="w-full h-full bg-slate-900 flex-col items-center justify-center p-8 text-center z-[100]">
+        <i class="fa-solid fa-mobile-screen-button text-amber text-6xl mb-6 rotate-90"></i>
+        <h1 class="text-3xl font-black mb-4 uppercase">Rotate Phone</h1>
+        <p class="text-slate-400 font-bold text-lg">The Match App is strictly designed for portrait mode to ensure quick, one-handed catch logging.</p>
+    </div>
+
+    <div id="app-container" class="w-full h-full flex flex-col relative">
+
+        <div id="view-home" class="flex-1 flex flex-col p-6 items-center justify-center space-y-6">
+            <div class="text-center">
+                <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
+                <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
+                <div class="text-slate-500 font-bold text-sm tracking-widest">v1.6</div>
+            </div>
             
-            <button onclick="navTo('join')" class="w-full bg-green-600 hover:bg-green-500 text-white font-black text-2xl py-6 rounded-xl shadow-lg uppercase tracking-wide">
-                Join Match
-            </button>
-            
-            <div class="flex space-x-4 pt-2">
-                <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
-                    <i class="fa-solid fa-crown mr-2"></i> Host
+            <div class="w-full max-w-sm space-y-4 pt-4">
+                <input type="text" id="playerName" placeholder="Enter Your Name" class="w-full bg-slate-800 border-2 border-slate-600 text-white font-bold text-xl rounded-xl p-4 text-center focus:border-amber focus:outline-none">
+                
+                <button onclick="navTo('join')" class="w-full bg-green-600 hover:bg-green-500 text-white font-black text-2xl py-6 rounded-xl shadow-lg uppercase tracking-wide">
+                    Join Match
                 </button>
-                <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
-                    <i class="fa-solid fa-book mr-2"></i> History
-                </button>
-            </div>
+                
+                <div class="flex space-x-4 pt-2">
+                    <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
+                        <i class="fa-solid fa-crown mr-2"></i> Host
+                    </button>
+                    <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
+                        <i class="fa-solid fa-book mr-2"></i> History
+                    </button>
+                </div>
 
-            <button onclick="forceUpdateApp()" class="w-full flex items-center justify-center space-x-2 bg-transparent text-slate-500 border border-slate-700 font-bold py-3 rounded-xl mt-6 active:text-amber active:border-amber transition">
-                <i class="fa-solid fa-rotate" id="updateSpinner"></i>
-                <span>Update App & Reset</span>
-            </button>
-        </div>
-    </div>
-
-    <div id="view-join" class="hidden flex-1 flex flex-col p-4 bg-slate-900">
-        <div class="flex justify-between items-center border-b border-slate-700 pb-4 pt-2">
-            <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-            <h2 class="text-xl font-bold">Join Match</h2>
-            <div class="w-6"></div>
-        </div>
-
-        <div class="text-center pt-8 pb-4">
-            <h2 class="text-amber font-bold text-xl mb-2">ENTER MATCH PIN</h2>
-            <div class="flex justify-center space-x-2">
-                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-1"></div>
-                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-2"></div>
-                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-3"></div>
-                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-4"></div>
-            </div>
-        </div>
-        
-        <div class="flex-1 grid grid-cols-3 gap-3 p-4 max-w-sm mx-auto w-full content-center">
-            <button class="atm-btn" onclick="atmPress(1)">1</button>
-            <button class="atm-btn" onclick="atmPress(2)">2</button>
-            <button class="atm-btn" onclick="atmPress(3)">3</button>
-            <button class="atm-btn" onclick="atmPress(4)">4</button>
-            <button class="atm-btn" onclick="atmPress(5)">5</button>
-            <button class="atm-btn" onclick="atmPress(6)">6</button>
-            <button class="atm-btn" onclick="atmPress(7)">7</button>
-            <button class="atm-btn" onclick="atmPress(8)">8</button>
-            <button class="atm-btn" onclick="atmPress(9)">9</button>
-            <button class="atm-btn text-red-500 text-xl" onclick="navTo('home')"><i class="fa-solid fa-xmark"></i></button>
-            <button class="atm-btn" onclick="atmPress(0)">0</button>
-            <button class="atm-btn text-amber text-xl" onclick="atmDelete()"><i class="fa-solid fa-delete-left"></i></button>
-        </div>
-        <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-5 rounded-xl mb-8">CONNECT</button>
-    </div>
-
-    <div id="view-host" class="hidden flex-1 flex flex-col p-6 space-y-6">
-        <div class="flex justify-between items-center border-b border-slate-700 pb-4">
-            <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-            <h2 class="text-xl font-bold">Match Setup</h2>
-            <div class="w-6"></div>
-        </div>
-        
-        <div class="space-y-4">
-            <label class="block text-amber font-bold">Match Duration (Hours)</label>
-            <select id="hostDuration" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none text-center">
-                <option value="1">1.0 Hour</option>
-                <option value="1.5">1.5 Hours</option>
-                <option value="2">2.0 Hours</option>
-                <option value="2.5">2.5 Hours</option>
-                <option value="3">3.0 Hours</option>
-                <option value="3.5">3.5 Hours</option>
-                <option value="4" selected>4.0 Hours</option>
-                <option value="4.5">4.5 Hours</option>
-                <option value="5">5.0 Hours</option>
-                <option value="5.5">5.5 Hours</option>
-                <option value="6">6.0 Hours</option>
-            </select>
-            
-            <label class="block text-amber font-bold pt-4">Scoring Format</label>
-            <select id="hostFormat" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none">
-                <option value="length">Length Only (cm)</option>
-                <option value="length10">Length + 10 Pts</option>
-                <option value="weightLb">Weight (Lbs & Oz)</option>
-                <option value="weightKg">Weight (Kg)</option>
-                <option value="speciesHunt">Species Hunt (Dynamic Scoring)</option>
-            </select>
-            
-            <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-xl mt-8 shadow-lg">CREATE MATCH</button>
-        </div>
-    </div>
-
-    <div id="view-waiting" class="hidden flex-1 flex flex-col p-6 space-y-8">
-        <div class="flex justify-between items-center w-full">
-            <button onclick="exitWaitingRoom()" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-            <div class="w-6"></div>
-        </div>
-
-        <div class="flex-1 flex flex-col justify-center items-center text-center space-y-8">
-            <h2 class="text-slate-400 font-bold uppercase tracking-widest text-sm">Room PIN</h2>
-            <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
-            
-            <div id="hostControls" class="hidden w-full max-w-sm pt-8">
-                <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Waiting for anglers...</p>
-                <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
-                    🚨 START MATCH NOW
-                </button>
-            </div>
-            <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
-                <p class="text-xl font-bold text-slate-300">Waiting for Marshal to blow the whistle...</p>
-                <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
-            </div>
-        </div>
-    </div>
-
-    <div id="view-hype" class="hidden flex-1 flex items-center justify-center bg-black">
-        <div id="hypeCount" class="hype-number flex items-center justify-center w-64 h-64">10</div>
-    </div>
-
-    <div id="view-fishing" class="hidden flex-1 flex flex-col relative">
-        
-        <div class="flex-none bg-slate-900 border-b border-slate-700 px-4 py-3 flex justify-between items-center z-20 shadow-md">
-            <div class="flex items-center space-x-3">
-                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-                <div class="text-xl font-black tabular-nums tracking-widest" id="mainTimer">04:00:00</div>
-            </div>
-            <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-slate-400 border border-slate-600 px-3 py-1 rounded text-sm font-bold active:bg-slate-700">
-                <i class="fa-solid fa-moon"></i> Sleep
-            </button>
-        </div>
-        
-        <div class="flex-none w-full bg-slate-800 border-b border-slate-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)] z-10">
-            <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber font-black text-lg uppercase tracking-widest active:bg-slate-700 transition">
-                <i class="fa-solid fa-list-ol mr-2"></i> View Leaderboard
-            </button>
-        </div>
-
-        <div id="statusBanner" class="flex-none hidden bg-red-600 text-white text-center font-bold py-2 uppercase tracking-wide text-sm shadow-md z-10">
-            Match Over - 10 Min Grace Period
-        </div>
-
-        <div id="loggingArea" class="flex-1 p-4 space-y-3 overflow-y-auto pb-12">
-            
-            <label class="block text-slate-400 font-bold text-sm uppercase">Species</label>
-            <select id="inputSpecies" class="w-full bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-xl font-bold appearance-none text-white focus:border-amber">
-                <option value="" disabled selected>-- Select Species --</option>
-                <optgroup label="Roundfish">
-                    <option value="Cod">Cod</option>
-                    <option value="Whiting">Whiting</option>
-                    <option value="Haddock">Haddock</option>
-                    <option value="Pollock">Pollock</option>
-                    <option value="Coalfish">Coalfish (Saithe)</option>
-                    <option value="Bass">Bass</option>
-                    <option value="Ling">Ling</option>
-                    <option value="Pouting">Pouting</option>
-                </optgroup>
-                <optgroup label="Flatfish">
-                    <option value="Flounder">Flounder</option>
-                    <option value="Plaice">Plaice</option>
-                    <option value="Dab">Dab</option>
-                    <option value="Turbot">Turbot</option>
-                    <option value="Brill">Brill</option>
-                    <option value="Dover Sole">Dover Sole</option>
-                    <option value="Lemon Sole">Lemon Sole</option>
-                </optgroup>
-                <optgroup label="Sharks & Rays">
-                    <option value="Lesser Spotted Dogfish">Lesser Spotted Dogfish</option>
-                    <option value="Bull Huss">Bull Huss</option>
-                    <option value="Smoothhound">Smoothhound</option>
-                    <option value="Tope">Tope</option>
-                    <option value="Thornback Ray">Thornback Ray</option>
-                    <option value="Spotted Ray">Spotted Ray</option>
-                    <option value="Blonde Ray">Blonde Ray</option>
-                </optgroup>
-                <optgroup label="Pelagics">
-                    <option value="Mackerel">Mackerel</option>
-                    <option value="Herring">Herring</option>
-                    <option value="Garfish">Garfish</option>
-                    <option value="Scad">Scad</option>
-                </optgroup>
-                <optgroup label="Others/Mini-Species">
-                    <option value="Ballan Wrasse">Ballan Wrasse</option>
-                    <option value="Corkwing Wrasse">Corkwing Wrasse</option>
-                    <option value="Conger Eel">Conger Eel</option>
-                    <option value="Grey Gurnard">Grey Gurnard</option>
-                    <option value="Tub Gurnard">Tub Gurnard</option>
-                    <option value="Rockling">Rockling</option>
-                </optgroup>
-            </select>
-
-            <label class="block text-slate-400 font-bold text-sm uppercase pt-1" id="labelSize">Size</label>
-            <div class="flex space-x-2">
-                <input type="number" id="inputSize" inputmode="decimal" class="flex-1 bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-3xl font-black text-center w-full text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
-                <button onclick="adjustSize(1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">+</button>
-                <button onclick="adjustSize(-1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">-</button>
-            </div>
-
-            <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-2xl py-5 rounded-xl shadow-lg mt-2 transition">
-                RECORD CATCH
-            </button>
-
-            <div class="pt-4">
-                <h3 class="text-slate-500 font-bold text-sm uppercase mb-2">My Log (Tap to Edit)</h3>
-                <div id="localCatchList" class="space-y-2">
-                    </div>
-            </div>
-
-            <div class="pt-8 pb-4">
-                <button onclick="leaveMatchEarly()" class="w-full border border-slate-700 text-slate-400 font-bold py-4 rounded-xl active:bg-slate-800 transition shadow-sm">
-                    <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> Leave Match Early
+                <button onclick="forceUpdateApp()" class="w-full flex items-center justify-center space-x-2 bg-transparent text-slate-500 border border-slate-700 font-bold py-3 rounded-xl mt-6 active:text-amber active:border-amber transition">
+                    <i class="fa-solid fa-rotate" id="updateSpinner"></i>
+                    <span>Update App & Reset</span>
                 </button>
             </div>
         </div>
 
-        <div class="absolute bottom-6 right-4 z-20">
-            <button id="btnMarshalPanel" onclick="document.getElementById('marshalDrawer').classList.add('open')" class="hidden bg-slate-700 text-white w-14 h-14 rounded-full shadow-lg text-xl flex items-center justify-center border border-slate-600 active:bg-slate-600">
-                <i class="fa-solid fa-sliders"></i>
-            </button>
-        </div>
-    </div>
-
-    <div id="view-history" class="hidden flex-1 flex flex-col p-6">
-        <div class="flex justify-between items-center border-b border-slate-700 pb-4 pt-2 mb-4">
-            <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-            <h2 class="text-xl font-bold">Match History</h2>
-            <div class="w-6"></div>
-        </div>
-        
-        <div id="historyListContainer" class="flex-1 overflow-y-auto space-y-3 pb-6">
+        <div id="view-join" class="hidden flex-1 flex flex-col p-4 bg-slate-900">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4 pt-2">
+                <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-xl font-bold">Join Match</h2>
+                <div class="w-6"></div>
             </div>
-    </div>
 
-    <div id="leaderboardDrawer" class="drawer-right fixed inset-y-0 right-0 w-full md:w-96 bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl">
-        
-        <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-black py-5 uppercase tracking-widest text-sm shadow-md flex justify-center items-center active:bg-slate-600">
-            <i class="fa-solid fa-arrow-left mr-3"></i> RETURN TO SCREEN
-        </button>
-
-        <div class="p-4 bg-slate-800 flex justify-center items-center border-b border-slate-700">
-            <h2 class="font-black text-xl" id="leaderboardTitle"><i class="fa-solid fa-trophy text-amber mr-2"></i> MATCH LEADERBOARD</h2>
-        </div>
-        
-        <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600" id="bountyContainer">
-            <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish</p>
-            <p class="font-black text-lg" id="bountyBanner">Waiting for catch...</p>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="leaderboardList">
-            </div>
-    </div>
-
-    <div id="marshalDrawer" class="drawer-left fixed inset-y-0 left-0 w-80 bg-slate-900 border-r border-slate-700 z-50 flex flex-col shadow-2xl">
-        <div class="p-4 bg-slate-800 flex justify-between items-center border-b border-slate-700">
-            <h2 class="font-black text-xl"><i class="fa-solid fa-user-shield text-blue-400 mr-2"></i> MARSHAL</h2>
-            <button onclick="document.getElementById('marshalDrawer').classList.remove('open')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="p-6 space-y-6 overflow-y-auto">
-            
-            <div>
-                <label class="block text-slate-400 font-bold text-sm uppercase mb-2">Adjust Clock</label>
-                <div class="flex space-x-2">
-                    <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">-15 Min</button>
-                    <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">+15 Min</button>
+            <div class="text-center pt-8 pb-4">
+                <h2 class="text-amber font-bold text-xl mb-2">ENTER MATCH PIN</h2>
+                <div class="flex justify-center space-x-2">
+                    <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-1"></div>
+                    <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-2"></div>
+                    <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-3"></div>
+                    <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-4"></div>
                 </div>
             </div>
             
-            <hr class="border-slate-700">
-            
-            <button onclick="showLatecomerPin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:bg-blue-700 flex justify-center items-center">
-                <i class="fa-solid fa-user-plus mr-2"></i> Add Latecomer
-            </button>
-
-            <button onclick="transferMarshal()" class="w-full bg-slate-700 text-white font-bold py-4 rounded-xl shadow-lg active:bg-slate-600 flex justify-center items-center">
-                <i class="fa-solid fa-right-left mr-2"></i> Transfer Marshal
-            </button>
-
-            <hr class="border-slate-700">
-            
-            <button onclick="endMatchEarly(true)" class="w-full bg-amber text-slate-900 font-black py-4 rounded-xl shadow-lg active:bg-yellow-600">
-                WRAP UP EARLY<br><span class="text-xs font-bold opacity-80">(Keep 10 Min Grace)</span>
-            </button>
-            
-            <button onclick="endMatchEarly(false)" class="w-full bg-red-600 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] active:bg-red-700">
-                🚨 ABORT MATCH<br><span class="text-xs font-bold opacity-80">(Zero Grace Period)</span>
-            </button>
-        </div>
-    </div>
-
-    <div id="view-results" class="hidden flex-1 flex flex-col bg-black text-white p-6 justify-center text-center space-y-6">
-        <h1 class="text-4xl font-black uppercase text-amber border-b-2 border-slate-700 pb-4">Match Finished</h1>
-        
-        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-6">
-            <p class="text-slate-400 font-bold uppercase tracking-widest text-sm mb-1">Your Final Score</p>
-            <p class="text-6xl font-black text-white" id="finalScore">0</p>
-        </div>
-        
-        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex justify-between items-center">
-            <p class="text-slate-400 font-bold">Total Fish:</p>
-            <p class="text-2xl font-black" id="finalCount">0</p>
+            <div class="flex-1 grid grid-cols-3 gap-3 p-4 max-w-sm mx-auto w-full content-center">
+                <button class="atm-btn" onclick="atmPress(1)">1</button>
+                <button class="atm-btn" onclick="atmPress(2)">2</button>
+                <button class="atm-btn" onclick="atmPress(3)">3</button>
+                <button class="atm-btn" onclick="atmPress(4)">4</button>
+                <button class="atm-btn" onclick="atmPress(5)">5</button>
+                <button class="atm-btn" onclick="atmPress(6)">6</button>
+                <button class="atm-btn" onclick="atmPress(7)">7</button>
+                <button class="atm-btn" onclick="atmPress(8)">8</button>
+                <button class="atm-btn" onclick="atmPress(9)">9</button>
+                <button class="atm-btn text-red-500 text-xl" onclick="navTo('home')"><i class="fa-solid fa-xmark"></i></button>
+                <button class="atm-btn" onclick="atmPress(0)">0</button>
+                <button class="atm-btn text-amber text-xl" onclick="atmDelete()"><i class="fa-solid fa-delete-left"></i></button>
+            </div>
+            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-5 rounded-xl mb-8">CONNECT</button>
         </div>
 
-        <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-xl shadow-lg mt-8 active:bg-green-700">
-            <i class="fa-brands fa-whatsapp mr-2"></i> Share Results
-        </button>
-        <button onclick="resetApp()" class="text-slate-500 font-bold mt-4 border-b border-slate-700 pb-1 active:text-white">Return to Home</button>
-    </div>
+        <div id="view-host" class="hidden flex-1 flex flex-col p-6 space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+                <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-xl font-bold">Match Setup</h2>
+                <div class="w-6"></div>
+            </div>
+            
+            <div class="space-y-4">
+                <label class="block text-amber font-bold">Match Duration (Hours)</label>
+                <select id="hostDuration" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none text-center">
+                    <option value="1">1.0 Hour</option>
+                    <option value="1.5">1.5 Hours</option>
+                    <option value="2">2.0 Hours</option>
+                    <option value="2.5">2.5 Hours</option>
+                    <option value="3">3.0 Hours</option>
+                    <option value="3.5">3.5 Hours</option>
+                    <option value="4" selected>4.0 Hours</option>
+                    <option value="4.5">4.5 Hours</option>
+                    <option value="5">5.0 Hours</option>
+                    <option value="5.5">5.5 Hours</option>
+                    <option value="6">6.0 Hours</option>
+                </select>
+                
+                <label class="block text-amber font-bold pt-4">Scoring Format</label>
+                <select id="hostFormat" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none">
+                    <option value="length">Length Only (cm)</option>
+                    <option value="length10">Length + 10 Pts</option>
+                    <option value="weightLb">Weight (Lbs & Oz)</option>
+                    <option value="weightKg">Weight (Kg)</option>
+                    <option value="speciesHunt">Species Hunt (Dynamic Scoring)</option>
+                </select>
+                
+                <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-xl mt-8 shadow-lg">CREATE MATCH</button>
+            </div>
+        </div>
 
+        <div id="view-waiting" class="hidden flex-1 flex flex-col p-6 space-y-8">
+            <div class="flex justify-between items-center w-full">
+                <button onclick="exitWaitingRoom()" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="w-6"></div>
+            </div>
 
-    <script>
+            <div class="flex-1 flex flex-col justify-center items-center text-center space-y-8">
+                <h2 class="text-slate-400 font-bold uppercase tracking-widest text-sm">Room PIN</h2>
+                <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
+                
+                <div id="hostControls" class="hidden w-full max-w-sm pt-8">
+                    <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Waiting for anglers...</p>
+                    <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
+                        🚨 START MATCH NOW
+                    </button>
+                </div>
+                <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
+                    <p class="text-xl font-bold text-slate-300">Waiting for Marshal to blow the whistle...</p>
+                    <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-hype" class="hidden flex-1 flex items-center justify-center bg-black">
+            <div id="hypeCount" class="hype-number flex items-center justify-center w-64 h-64">10</div>
+        </div>
+
+        <div id="view-fishing" class="hidden flex-1 flex flex-col relative">
+            
+            <div class="flex-none bg-slate-900 border-b border-slate-700 px-4 py-3 flex justify-between items-center z-20 shadow-md">
+                <div class="flex items-center space-x-3">
+                    <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                    <div class="text-xl font-black tabular-nums tracking-widest" id="mainTimer">04:00:00</div>
+                </div>
+                <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-slate-400 border border-slate-600 px-3 py-1 rounded text-sm font-bold active:bg-slate-700">
+                    <i class="fa-solid fa-moon"></i> Sleep
+                </button>
+            </div>
+            
+            <div class="flex-none w-full bg-slate-800 border-b border-slate-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)] z-10">
+                <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber font-black text-lg uppercase tracking-widest active:bg-slate-700 transition">
+                    <i class="fa-solid fa-list-ol mr-2"></i> View Leaderboard
+                </button>
+            </div>
+
+            <div id="statusBanner" class="flex-none hidden bg-red-600 text-white text-center font-bold py-2 uppercase tracking-wide text-sm shadow-md z-10">
+                Match Over - 10 Min Grace Period
+            </div>
+
+            <div id="loggingArea" class="scrollable-area flex-1 p-4 space-y-3 pb-24">
+                
+                <label class="block text-slate-400 font-bold text-sm uppercase">Species</label>
+                <select id="inputSpecies" class="w-full bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-xl font-bold appearance-none text-white focus:border-amber">
+                    <option value="" disabled selected>-- Select Species --</option>
+                    <optgroup label="Roundfish">
+                        <option value="Cod">Cod</option>
+                        <option value="Whiting">Whiting</option>
+                        <option value="Haddock">Haddock</option>
+                        <option value="Pollock">Pollock</option>
+                        <option value="Coalfish">Coalfish (Saithe)</option>
+                        <option value="Bass">Bass</option>
+                        <option value="Ling">Ling</option>
+                        <option value="Pouting">Pouting</option>
+                    </optgroup>
+                    <optgroup label="Flatfish">
+                        <option value="Flounder">Flounder</option>
+                        <option value="Plaice">Plaice</option>
+                        <option value="Dab">Dab</option>
+                        <option value="Turbot">Turbot</option>
+                        <option value="Brill">Brill</option>
+                        <option value="Dover Sole">Dover Sole</option>
+                        <option value="Lemon Sole">Lemon Sole</option>
+                    </optgroup>
+                    <optgroup label="Sharks & Rays">
+                        <option value="Lesser Spotted Dogfish">Lesser Spotted Dogfish</option>
+                        <option value="Bull Huss">Bull Huss</option>
+                        <option value="Smoothhound">Smoothhound</option>
+                        <option value="Tope">Tope</option>
+                        <option value="Thornback Ray">Thornback Ray</option>
+                        <option value="Spotted Ray">Spotted Ray</option>
+                        <option value="Blonde Ray">Blonde Ray</option>
+                    </optgroup>
+                    <optgroup label="Pelagics">
+                        <option value="Mackerel">Mackerel</option>
+                        <option value="Herring">Herring</option>
+                        <option value="Garfish">Garfish</option>
+                        <option value="Scad">Scad</option>
+                    </optgroup>
+                    <optgroup label="Others/Mini-Species">
+                        <option value="Ballan Wrasse">Ballan Wrasse</option>
+                        <option value="Corkwing Wrasse">Corkwing Wrasse</option>
+                        <option value="Conger Eel">Conger Eel</option>
+                        <option value="Grey Gurnard">Grey Gurnard</option>
+                        <option value="Tub Gurnard">Tub Gurnard</option>
+                        <option value="Rockling">Rockling</option>
+                    </optgroup>
+                </select>
+
+                <label class="block text-slate-400 font-bold text-sm uppercase pt-1" id="labelSize">Size</label>
+                <div class="flex space-x-2">
+                    <input type="number" id="inputSize" inputmode="decimal" class="flex-1 bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-3xl font-black text-center w-full text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
+                    <button onclick="adjustSize(1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">+</button>
+                    <button onclick="adjustSize(-1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">-</button>
+                </div>
+
+                <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-2xl py-5 rounded-xl shadow-lg mt-2 transition">
+                    RECORD CATCH
+                </button>
+
+                <div class="pt-4">
+                    <h3 class="text-slate-500 font-bold text-sm uppercase mb-2">My Log (Tap to Edit)</h3>
+                    <div id="localCatchList" class="space-y-2">
+                        </div>
+                </div>
+
+                <div class="pt-8 pb-4">
+                    <button onclick="leaveMatchEarly()" class="w-full border border-slate-700 text-slate-400 font-bold py-4 rounded-xl active:bg-slate-800 transition shadow-sm">
+                        <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> Leave Match Early
+                    </button>
+                </div>
+            </div>
+
+            <div class="absolute bottom-6 right-4 z-20">
+                <button id="btnMarshalPanel" onclick="document.getElementById('marshalDrawer').classList.add('open')" class="hidden bg-slate-700 text-white w-14 h-14 rounded-full shadow-lg text-xl flex items-center justify-center border border-slate-600 active:bg-slate-600">
+                    <i class="fa-solid fa-sliders"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-history" class="hidden flex-1 flex flex-col p-6">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-4 pt-2 mb-4">
+                <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
+                <h2 class="text-xl font-bold">Match History</h2>
+                <div class="w-6"></div>
+            </div>
+            
+            <div id="historyListContainer" class="scrollable-area flex-1 space-y-3 pb-6">
+                </div>
+        </div>
+
+        <div id="leaderboardDrawer" class="drawer-right fixed inset-y-0 right-0 w-full md:w-96 bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl">
+            
+            <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-black py-5 uppercase tracking-widest text-sm shadow-md flex justify-center items-center active:bg-slate-600">
+                <i class="fa-solid fa-arrow-left mr-3"></i> RETURN TO SCREEN
+            </button>
+
+            <div class="p-4 bg-slate-800 flex justify-center items-center border-b border-slate-700">
+                <h2 class="font-black text-xl" id="leaderboardTitle"><i class="fa-solid fa-trophy text-amber mr-2"></i> MATCH LEADERBOARD</h2>
+            </div>
+            
+            <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600" id="bountyContainer">
+                <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish</p>
+                <p class="font-black text-lg" id="bountyBanner">Waiting for catch...</p>
+            </div>
+
+            <div class="scrollable-area flex-1 p-4 space-y-3" id="leaderboardList">
+                </div>
+        </div>
+
+        <div id="marshalDrawer" class="drawer-left fixed inset-y-0 left-0 w-80 bg-slate-900 border-r border-slate-700 z-50 flex flex-col shadow-2xl">
+            <div class="p-4 bg-slate-800 flex justify-between items-center border-b border-slate-700">
+                <h2 class="font-black text-xl"><i class="fa-solid fa-user-shield text-blue-400 mr-2"></i> MARSHAL</h2>
+                <button onclick="document.getElementById('marshalDrawer').classList.remove('open')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="scrollable-area p-6 space-y-6">
+                
+                <div>
+                    <label class="block text-slate-400 font-bold text-sm uppercase mb-2">Adjust Clock</label>
+                    <div class="flex space-x-2">
+                        <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">-15 Min</button>
+                        <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">+15 Min</button>
+                    </div>
+                </div>
+                
+                <hr class="border-slate-700">
+                
+                <button onclick="showLatecomerPin()" class="w-full bg-blue-600 text-white font-bold py-4 rounded-xl shadow-lg active:bg-blue-700 flex justify-center items-center">
+                    <i class="fa-solid fa-user-plus mr-2"></i> Add Latecomer
+                </button>
+
+                <button onclick="transferMarshal()" class="w-full bg-slate-700 text-white font-bold py-4 rounded-xl shadow-lg active:bg-slate-600 flex justify-center items-center">
+                    <i class="fa-solid fa-right-left mr-2"></i> Transfer Marshal
+                </button>
+
+                <hr class="border-slate-700">
+                
+                <button onclick="endMatchEarly(true)" class="w-full bg-amber text-slate-900 font-black py-4 rounded-xl shadow-lg active:bg-yellow-600">
+                    WRAP UP EARLY<br><span class="text-xs font-bold opacity-80">(Keep 10 Min Grace)</span>
+                </button>
+                
+                <button onclick="endMatchEarly(false)" class="w-full bg-red-600 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] active:bg-red-700">
+                    🚨 ABORT MATCH<br><span class="text-xs font-bold opacity-80">(Zero Grace Period)</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="view-results" class="hidden flex-1 flex flex-col bg-black text-white p-6 justify-center text-center space-y-6">
+            <h1 class="text-4xl font-black uppercase text-amber border-b-2 border-slate-700 pb-4">Match Finished</h1>
+            
+            <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-6">
+                <p class="text-slate-400 font-bold uppercase tracking-widest text-sm mb-1">Your Final Score</p>
+                <p class="text-6xl font-black text-white" id="finalScore">0</p>
+            </div>
+            
+            <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex justify-between items-center">
+                <p class="text-slate-400 font-bold">Total Fish:</p>
+                <p class="text-2xl font-black" id="finalCount">0</p>
+            </div>
+
+            <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-xl shadow-lg mt-8 active:bg-green-700">
+                <i class="fa-brands fa-whatsapp mr-2"></i> Share Results
+            </button>
+            <button onclick="resetApp()" class="text-slate-500 font-bold mt-4 border-b border-slate-700 pb-1 active:text-white">Return to Home</button>
+        </div>
+
+    </div> <script>
         /* -------------------------------------------------------------------------- */
-        /* APPLICATION STATE & GHOST BOOT (LocalStorage)                              */
+        /* APPLICATION STATE & GHOST BOOT                                             */
         /* -------------------------------------------------------------------------- */
         let state = {
             view: 'home',
@@ -418,17 +446,24 @@
             const saved = localStorage.getItem('matchState');
             if (saved) {
                 try {
-                    state = JSON.parse(saved);
-                    document.getElementById('playerName').value = state.name || "";
+                    let oldState = JSON.parse(saved);
+                    state.name = oldState.name || "";
+                    document.getElementById('playerName').value = state.name;
                     
-                    if (state.status === 'playing' || state.status === 'grace') {
+                    if (oldState.status === 'playing' || oldState.status === 'grace') {
+                        state = oldState; // Restore full state
                         navTo('fishing');
                         renderCatchList();
                         startClock();
                         if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
-                    } else if (state.status === 'finished') {
+                    } else if (oldState.status === 'finished') {
+                        state = oldState;
                         navTo('results');
-                    } else if (state.status === 'waiting' || state.view === 'waiting') {
+                        let finalScore = state.myCatches.reduce((sum, c) => sum + c.points, 0);
+                        document.getElementById('finalScore').innerText = finalScore;
+                        document.getElementById('finalCount').innerText = state.myCatches.length;
+                    } else if (oldState.status === 'waiting' || oldState.view === 'waiting') {
+                        state = oldState;
                         document.getElementById('displayPin').innerText = state.pin;
                         if(state.isHost) {
                             document.getElementById('hostControls').classList.remove('hidden');
@@ -502,7 +537,7 @@
         /* NAVIGATION & UI LOGIC                                                      */
         /* -------------------------------------------------------------------------- */
         function navTo(viewId) {
-            document.querySelectorAll('body > div[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('#app-container > div[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
             state.view = viewId;
             if (viewId === 'history') renderHistory();
@@ -798,7 +833,6 @@
             let size = parseFloat(document.getElementById('inputSize').value) || 0;
             let points = size; 
             
-            // DYNAMIC SCORING RULES
             if (state.format === 'speciesHunt') {
                 let existingCount = state.myCatches.filter(c => c.species === species && c.id !== state.editingId).length;
                 if (existingCount === 0) points = 25;
@@ -832,7 +866,6 @@
                 });
             }
 
-            // Force the dropdown to reset
             document.getElementById('inputSpecies').value = "";
             document.getElementById('inputSize').value = "";
             
@@ -854,10 +887,9 @@
         function deleteCatch(id) {
             state.myCatches = state.myCatches.filter(c => c.id !== id);
             
-            // If deleting a species in Species Hunt format, we must recalculate points for remaining fish of that species chronologically
             if (state.format === 'speciesHunt') {
                 let counts = {};
-                let tempCatches = [...state.myCatches].reverse(); // Oldest first
+                let tempCatches = [...state.myCatches].reverse(); 
                 tempCatches.forEach(c => {
                     counts[c.species] = (counts[c.species] || 0) + 1;
                     let num = counts[c.species];
@@ -866,7 +898,7 @@
                     else if (num === 3) c.points = 40;
                     else c.points = 1;
                 });
-                state.myCatches = tempCatches.reverse(); // Newest first again
+                state.myCatches = tempCatches.reverse(); 
             }
 
             saveState();
@@ -936,10 +968,10 @@
 
         function leaveMatchEarly() {
             if (confirm("Are you sure you want to leave the beach early? Your catches will remain on the cloud leaderboard.")) {
-                saveToHistory(true); // Tag as LIVE in vault
+                saveToHistory(true); 
                 state.status = 'idle';
                 state.isHost = false; 
-                state.myCatches = []; // Clear current catches so next match is fresh
+                state.myCatches = []; 
                 navTo('home');
             }
         }
@@ -971,7 +1003,7 @@
 
         function lockdownMatch() {
             clearInterval(clockInterval);
-            saveToHistory(false); // Tag as ENDED in vault
+            saveToHistory(false); 
             state.status = 'finished';
             saveState();
             
@@ -1018,9 +1050,16 @@
             }
         }
 
+        // FULL WIPE BUG FIX
         function resetApp() {
-            state.myCatches = []; // Clean slate
-            localStorage.setItem('matchState', JSON.stringify(state));
+            localStorage.removeItem('matchState');
+            
+            // Hard reset the variables so they don't get saved again on unload
+            state.status = 'idle';
+            state.view = 'home';
+            state.isHost = false;
+            state.myCatches = [];
+            
             location.reload();
         }
     </script>
