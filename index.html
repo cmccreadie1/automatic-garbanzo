@@ -88,6 +88,13 @@
             animation: pulse-ring 1s infinite;
             border-radius: 50%;
         }
+
+        /* BROADCAST NOTIFICATION TOAST */
+        #broadcastToast {
+            transform: translateY(-150%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #broadcastToast.show { transform: translateY(0); }
         
         .drawer-right {
             transition: transform 0.3s ease-in-out;
@@ -106,13 +113,21 @@
 </head>
 <body>
 
+    <div id="broadcastToast" class="fixed top-4 inset-x-4 z-[100] bg-amber text-slate-900 p-4 rounded-2xl shadow-2xl flex items-center space-x-4 border-2 border-white/20">
+        <i class="fa-solid fa-bullhorn text-2xl animate-bounce"></i>
+        <div class="flex-1">
+            <p class="font-black uppercase text-xs tracking-widest leading-none">Marshal Announcement</p>
+            <p id="broadcastMsg" class="font-bold text-sm leading-tight mt-1"></p>
+        </div>
+    </div>
+
     <div id="app-container">
 
         <div id="view-home" class="view-frame items-center justify-center p-6 space-y-6">
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.7</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.8</div>
             </div>
             
             <div class="w-full max-w-sm space-y-4 pt-4">
@@ -604,46 +619,65 @@
             });
         }
 
+        function showNotification(msg) {
+            const toast = document.getElementById('broadcastToast');
+            const txt = document.getElementById('broadcastMsg');
+            txt.innerText = msg;
+            toast.classList.add('show');
+            playWarningBeep();
+            setTimeout(() => { toast.classList.remove('show'); }, 6000);
+        }
+
         function processCloudUpdate() {
-            // 1. LIVE ATTENDANCE RENDERING (LOBBY)
+            // 1. LIVE ATTENDANCE
             if (state.view === 'waiting' && globalMatchData.anglers) {
                 const list = document.getElementById('attendanceList');
                 let anglers = Object.values(globalMatchData.anglers);
                 list.innerHTML = anglers.map(a => `
-                    <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 flex justify-between items-center animate-fade-in">
+                    <div class="bg-slate-700/50 p-3 rounded-xl border border-slate-600 flex justify-between items-center">
                         <span class="font-bold text-white"><i class="fa-solid fa-user-check text-green-400 mr-2"></i> ${a.name}</span>
                         <span class="text-xs text-slate-400 font-black uppercase">Ready</span>
                     </div>
                 `).join('');
-                if(anglers.length === 0) list.innerHTML = '<p class="text-slate-500 text-center italic py-10">Waiting for anglers to join...</p>';
+                if(anglers.length === 0) list.innerHTML = '<p class="text-slate-500 text-center italic py-10">Waiting for anglers...</p>';
             }
 
-            // 2. GLOBAL COUNTDOWN HANDLER
+            // 2. GLOBAL COUNTDOWN
             if (globalMatchData.status === 'hype' && !countdownActive) {
-                state.hypeStartTime = globalMatchData.hypeStartTime;
-                state.endTime = globalMatchData.endTime;
                 runGlobalCountdown();
             }
 
-            // 3. MATCH STATE SYNC
-            if (state.status === 'hype' && globalMatchData.status === 'playing') {
+            // 3. MATCH STATE TRANSITIONS
+            if (globalMatchData.status === 'playing') {
+                // Handle "Resurrection" (Back from Grace)
+                if (state.status === 'grace') {
+                    state.status = 'playing';
+                    state.graceEndTime = null;
+                    document.getElementById('statusBanner').classList.add('hidden');
+                    showNotification("Match Resurrected! Time has been added.");
+                }
                 state.endTime = globalMatchData.endTime;
-                state.format = globalMatchData.format; 
-                beginFishing(false); 
+                if (state.view !== 'fishing' && state.status !== 'hype') beginFishing(false);
             }
-            if ((state.status === 'playing' || state.status === 'waiting' || state.status === 'hype') && globalMatchData.status === 'grace') {
+
+            if (globalMatchData.status === 'grace' && state.status !== 'grace') {
                 state.graceEndTime = globalMatchData.graceEndTime;
                 state.endTime = globalMatchData.endTime; 
                 state.status = 'grace';
                 if(state.view !== 'fishing') navTo('fishing');
+                showNotification("Marshal has ended the match. 10 Min Grace Period starting now!");
                 saveState();
             }
-            if (state.status !== 'finished' && globalMatchData.status === 'finished') {
+
+            if (globalMatchData.status === 'finished' && state.status !== 'finished') {
                 lockdownMatch(false);
             }
+
             if (state.status === 'playing' && state.endTime !== globalMatchData.endTime) {
                 state.endTime = globalMatchData.endTime;
             }
+
+            // MARSHAL POWER SYNC
             if (globalMatchData.hostId === uid && !state.isHost) {
                 state.isHost = true;
                 if(state.status === 'playing') document.getElementById('btnMarshalPanel').classList.remove('hidden');
@@ -744,11 +778,10 @@
             setTimeout(() => playSyntheticTone(600, 'square', 0.4), 300);
         }
 
-        // MARSHAL TRIGGERS HYPE
         function triggerHypeStart() {
             if(!state.isHost) return;
             let dur = parseFloat(document.getElementById('hostDuration').value || 4);
-            let endTime = Date.now() + (dur * 60 * 60 * 1000) + 11000; // Offset for 10s countdown
+            let endTime = Date.now() + (dur * 60 * 60 * 1000) + 11000;
             update(ref(db, 'matches/' + state.pin), {
                 status: 'hype',
                 hypeStartTime: Date.now(),
@@ -756,16 +789,13 @@
             });
         }
 
-        // EVERYONE RUNS THIS
         function runGlobalCountdown() {
             countdownActive = true;
             state.status = 'hype';
             navTo('hype');
-            
             let count = 10;
             document.getElementById('hypeCount').innerText = count;
             playSyntheticTone(400, 'sine', 0.1);
-
             let hypeInterval = setInterval(() => {
                 count--;
                 if (count > 0) {
@@ -885,17 +915,50 @@
             }
         }
 
-        function adjustClock(m) { if(state.isHost) update(ref(db, 'matches/' + state.pin), { endTime: state.endTime + (m * 60 * 1000) }); }
-        function showLatecomerPin() { alert(`PIN: ${state.pin}`); }
+        // --- COMMAND CENTER UPGRADES ---
+        function adjustClock(m) {
+            if(!state.isHost || !state.pin) return;
+            let newEndTime = state.endTime + (m * 60 * 1000);
+            let updates = { endTime: newEndTime };
+            
+            // If Marshal adds time while in Grace Period, resurrect the match
+            if (m > 0 && state.status === 'grace') {
+                updates.status = 'playing';
+                updates.graceEndTime = null;
+            }
+            
+            update(ref(db, 'matches/' + state.pin), updates)
+                .catch(e => alert("Sync Failed: " + e.message));
+        }
+
+        function showLatecomerPin() { alert(`Match PIN: ${state.pin}`); }
+        
         function transferMarshal() {
-            if (!globalMatchData?.anglers) return;
+            if (!globalMatchData?.anglers || !state.pin) return;
             let opts = Object.entries(globalMatchData.anglers).filter(([k]) => k !== uid).map(([k,v]) => ({id:k, name:v.name}));
             if(opts.length === 0) return alert("No others online.");
             let c = prompt("Choose Marshal:\n" + opts.map((o,i) => `${i+1}: ${o.name}`).join("\n"));
             if (c > 0 && c <= opts.length) update(ref(db, 'matches/' + state.pin), { hostId: opts[c-1].id });
         }
-        function endMatchEarly(grace) { if(!state.isHost) return; if(grace) update(ref(db, 'matches/' + state.pin), { status: 'grace', endTime: Date.now(), graceEndTime: Date.now() + 600000 }); else update(ref(db, 'matches/' + state.pin), { status: 'finished' }); }
-        function leaveMatchEarly() { if (confirm("Leave?")) { saveToHistory(true); resetApp(); } }
+
+        function endMatchEarly(grace) {
+            if(!state.isHost || !state.pin) return;
+            const refEnd = ref(db, 'matches/' + state.pin);
+            document.getElementById('marshalDrawer').classList.remove('open');
+            
+            if(grace) {
+                update(refEnd, { 
+                    status: 'grace', 
+                    endTime: Date.now(), 
+                    graceEndTime: Date.now() + 600000 
+                }).catch(e => alert("Sync Failed: " + e.message));
+            } else {
+                update(refEnd, { status: 'finished' })
+                    .catch(e => alert("Sync Failed: " + e.message));
+            }
+        }
+
+        function leaveMatchEarly() { if(confirm("Leave?")) { saveToHistory(true); resetApp(); } }
 
         function lockdownMatch(isH) { 
             clearInterval(clockInterval); 
@@ -914,26 +977,16 @@
         function saveToHistory(isLive) { 
             let history = JSON.parse(localStorage.getItem('matchHistory') || '[]'); 
             let matchId = state.pin + '_' + state.endTime; 
-            
-            // Capture full leaderboard from globalMatchData before saving
             let standings = [];
             if(globalMatchData?.anglers) {
                 standings = Object.values(globalMatchData.anglers).sort((a,b) => b.score - a.score);
             }
-
             let record = { 
-                id: matchId, 
-                pin: state.pin, 
-                date: new Date().toLocaleDateString(), 
-                format: state.format, 
-                score: state.myCatches.reduce((s,c) => s+c.points,0), 
-                fishCount: state.myCatches.length, 
-                isLive: isLive, 
-                personalCatches: [...state.myCatches], 
-                standings: standings,
-                playerName: state.name 
+                id: matchId, pin: state.pin, date: new Date().toLocaleDateString(), 
+                format: state.format, score: state.myCatches.reduce((s,c) => s+c.points,0), 
+                fishCount: state.myCatches.length, isLive: isLive, 
+                personalCatches: [...state.myCatches], standings: standings, playerName: state.name 
             }; 
-
             let idx = history.findIndex(m => m.id === matchId); 
             if(idx>=0) history[idx]=record; else history.unshift(record); 
             localStorage.setItem('matchHistory', JSON.stringify(history)); 
@@ -961,7 +1014,6 @@
             let m = h.find(x => x.id === id); 
             if(m) { 
                 document.getElementById('leaderboardTitle').innerHTML = '<i class="fa-solid fa-book-bookmark text-amber mr-2"></i> MATCH RECORD'; 
-                
                 let boardHtml = `
                     <div class="mb-6">
                         <h4 class="text-slate-500 text-xs font-black uppercase tracking-widest mb-3">Final Standings</h4>
@@ -977,14 +1029,8 @@
                         <h4 class="text-slate-500 text-xs font-black uppercase tracking-widest mb-3">Your Catch Diary</h4>
                         ${m.personalCatches.map(c => `
                             <div class="bg-slate-800/50 p-3 rounded-lg border border-slate-700 flex justify-between items-center mb-2">
-                                <div>
-                                    <span class="font-bold text-white">${c.species}</span><br>
-                                    <span class="text-xs text-slate-400">${c.time}</span>
-                                </div>
-                                <div class="text-right">
-                                    <span class="font-bold text-slate-200">${c.size || ''}</span><br>
-                                    <span class="text-xs text-slate-500">${c.points} Pts</span>
-                                </div>
+                                <div><span class="font-bold text-white">${c.species}</span><br><span class="text-xs text-slate-400">${c.time}</span></div>
+                                <div class="text-right"><span class="font-bold text-slate-200">${c.size || ''}</span><br><span class="text-xs text-slate-500">${c.points} Pts</span></div>
                             </div>
                         `).join('')}
                     </div>
