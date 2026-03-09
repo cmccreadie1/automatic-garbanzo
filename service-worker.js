@@ -1,9 +1,9 @@
-const CACHE_NAME = 'match-edition-v2.3';
+const CACHE_NAME = 'match-edition-v2.4';
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon.png'
+  '/competition-Scorer/',
+  '/competition-Scorer/index.html',
+  '/competition-Scorer/manifest.json',
+  '/competition-Scorer/icon.png'
 ];
 
 self.addEventListener('install', (event) => {
