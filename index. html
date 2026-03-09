@@ -1,1 +1,686 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sea Diary: Match Edition</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Deep Navy */
+            color: #ffffff;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        .text-amber { color: #f59e0b; }
+        .bg-amber { background-color: #f59e0b; }
+        .atm-btn {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            font-size: 2rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 80px;
+            transition: background 0.1s;
+        }
+        .atm-btn:active { background: #f59e0b; color: #0f172a; }
+        
+        /* Hype Animation */
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 20px rgba(245, 158, 11, 0); }
+            100% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .hype-number {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #f59e0b;
+            animation: pulse-ring 1s infinite;
+            border-radius: 50%;
+        }
+        
+        /* Slide drawers */
+        .drawer {
+            transition: transform 0.3s ease-in-out;
+            transform: translateX(100%);
+        }
+        .drawer.open { transform: translateX(0); }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="h-screen w-screen flex flex-col">
 
+    <div id="view-home" class="flex-1 flex flex-col p-6 items-center justify-center space-y-8">
+        <div class="text-center">
+            <i class="fa-solid fa-stopwatch text-amber text-6xl mb-4"></i>
+            <h1 class="text-3xl font-black tracking-tight">MATCH EDITION</h1>
+        </div>
+        
+        <div class="w-full max-w-sm space-y-4">
+            <input type="text" id="playerName" placeholder="Enter Your Name" class="w-full bg-slate-800 border-2 border-slate-600 text-white font-bold text-xl rounded-xl p-4 text-center focus:border-amber focus:outline-none">
+            
+            <button onclick="navTo('join')" class="w-full bg-green-600 hover:bg-green-500 text-white font-black text-2xl py-6 rounded-xl shadow-lg uppercase tracking-wide">
+                Join Match
+            </button>
+            
+            <div class="flex space-x-4 pt-4">
+                <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700">
+                    <i class="fa-solid fa-crown mr-2"></i> Host
+                </button>
+                <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700">
+                    <i class="fa-solid fa-book mr-2"></i> History
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-join" class="hidden flex-1 flex flex-col p-4 bg-slate-900">
+        <div class="text-center pt-8 pb-4">
+            <h2 class="text-amber font-bold text-xl mb-2">ENTER MATCH PIN</h2>
+            <div class="flex justify-center space-x-2">
+                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-1"></div>
+                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-2"></div>
+                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-3"></div>
+                <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded flex items-center justify-center text-4xl font-black pin-digit" id="pin-4"></div>
+            </div>
+        </div>
+        
+        <div class="flex-1 grid grid-cols-3 gap-3 p-4 max-w-sm mx-auto w-full content-center">
+            <button class="atm-btn" onclick="atmPress(1)">1</button>
+            <button class="atm-btn" onclick="atmPress(2)">2</button>
+            <button class="atm-btn" onclick="atmPress(3)">3</button>
+            <button class="atm-btn" onclick="atmPress(4)">4</button>
+            <button class="atm-btn" onclick="atmPress(5)">5</button>
+            <button class="atm-btn" onclick="atmPress(6)">6</button>
+            <button class="atm-btn" onclick="atmPress(7)">7</button>
+            <button class="atm-btn" onclick="atmPress(8)">8</button>
+            <button class="atm-btn" onclick="atmPress(9)">9</button>
+            <button class="atm-btn text-red-500 text-xl" onclick="navTo('home')"><i class="fa-solid fa-xmark"></i></button>
+            <button class="atm-btn" onclick="atmPress(0)">0</button>
+            <button class="atm-btn text-amber text-xl" onclick="atmDelete()"><i class="fa-solid fa-delete-left"></i></button>
+        </div>
+        <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-5 rounded-xl mb-8">CONNECT</button>
+    </div>
+
+    <div id="view-host" class="hidden flex-1 flex flex-col p-6 space-y-6">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+            <button onclick="navTo('home')" class="text-slate-400 text-2xl"><i class="fa-solid fa-arrow-left"></i></button>
+            <h2 class="text-xl font-bold">Match Setup</h2>
+            <div class="w-6"></div>
+        </div>
+        
+        <div class="space-y-4">
+            <label class="block text-amber font-bold">Match Duration (Hours)</label>
+            <input type="number" id="hostDuration" value="4" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber">
+            
+            <label class="block text-amber font-bold pt-4">Scoring Format</label>
+            <select id="hostFormat" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none">
+                <option value="length">Length Only (cm)</option>
+                <option value="length10">Length + 10 Pts</option>
+                <option value="weightLb">Weight (Lbs & Oz)</option>
+                <option value="weightKg">Weight (Kg)</option>
+            </select>
+            
+            <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-xl mt-8 shadow-lg">CREATE MATCH</button>
+        </div>
+    </div>
+
+    <div id="view-waiting" class="hidden flex-1 flex flex-col p-6 justify-center items-center text-center space-y-8">
+        <h2 class="text-slate-400 font-bold uppercase tracking-widest text-sm">Room PIN</h2>
+        <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
+        
+        <div id="hostControls" class="hidden w-full max-w-sm pt-8">
+            <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Waiting for anglers...</p>
+            <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
+                🚨 START MATCH NOW
+            </button>
+        </div>
+        <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
+            <p class="text-xl font-bold text-slate-300">Waiting for Marshal to blow the whistle...</p>
+            <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
+        </div>
+    </div>
+
+    <div id="view-hype" class="hidden flex-1 flex items-center justify-center bg-black">
+        <div id="hypeCount" class="hype-number flex items-center justify-center w-64 h-64">10</div>
+    </div>
+
+    <div id="view-fishing" class="hidden flex-1 flex flex-col relative">
+        
+        <div class="bg-slate-900 border-b border-slate-700 px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
+                <div class="text-xl font-black tabular-nums tracking-widest" id="mainTimer">04:00:00</div>
+            </div>
+            <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-slate-400 border border-slate-600 px-3 py-1 rounded text-sm font-bold">
+                <i class="fa-solid fa-moon"></i> Sleep
+            </button>
+        </div>
+        
+        <div id="statusBanner" class="hidden bg-red-600 text-white text-center font-bold py-2 uppercase tracking-wide text-sm">
+            Match Over - 10 Min Grace Period
+        </div>
+
+        <div id="loggingArea" class="flex-1 p-4 space-y-4 overflow-y-auto">
+            
+            <label class="block text-slate-400 font-bold text-sm uppercase">Species</label>
+            <select id="inputSpecies" class="w-full bg-slate-800 border-2 border-slate-600 p-5 rounded-xl text-2xl font-bold appearance-none text-white">
+                <option value="Cod">Cod</option>
+                <option value="Whiting">Whiting</option>
+                <option value="Mackerel">Mackerel</option>
+                <option value="Flounder">Flounder</option>
+                <option value="Bass">Bass</option>
+                <option value="Dogfish">Dogfish</option>
+            </select>
+
+            <label class="block text-slate-400 font-bold text-sm uppercase pt-2" id="labelSize">Size</label>
+            <div class="flex space-x-2">
+                <input type="number" id="inputSize" inputmode="decimal" class="flex-1 bg-slate-800 border-2 border-slate-600 p-5 rounded-xl text-4xl font-black text-center text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
+                <button onclick="adjustSize(1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">+</button>
+                <button onclick="adjustSize(-1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">-</button>
+            </div>
+
+            <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-3xl py-8 rounded-xl shadow-lg mt-4">
+                RECORD CATCH
+            </button>
+
+            <div class="pt-6">
+                <h3 class="text-slate-500 font-bold text-sm uppercase mb-2">My Log (Tap to Edit)</h3>
+                <div id="localCatchList" class="space-y-2">
+                    </div>
+            </div>
+        </div>
+
+        <div class="absolute bottom-6 right-6 flex flex-col space-y-3">
+            <button id="btnMarshalPanel" onclick="document.getElementById('marshalDrawer').classList.add('open')" class="hidden bg-slate-700 text-white w-14 h-14 rounded-full shadow-lg text-xl flex items-center justify-center border border-slate-600">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+            <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="bg-amber text-slate-900 w-16 h-16 rounded-full shadow-lg text-2xl font-black flex items-center justify-center">
+                <i class="fa-solid fa-trophy"></i>
+            </button>
+        </div>
+    </div>
+
+    <div id="leaderboardDrawer" class="drawer fixed inset-y-0 right-0 w-80 bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl">
+        <div class="p-4 bg-slate-800 flex justify-between items-center border-b border-slate-700">
+            <h2 class="font-black text-xl"><i class="fa-solid fa-trophy text-amber mr-2"></i> LEADERBOARD</h2>
+            <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="text-slate-400 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600">
+            <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish</p>
+            <p class="font-black text-lg" id="bountyBanner">Waiting for catch...</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="leaderboardList">
+            <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center">
+                <div>
+                    <span class="font-bold text-amber">1st</span> <span class="font-bold ml-2">Stevie</span>
+                </div>
+                <div class="font-black text-xl">0 pts</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="marshalDrawer" class="drawer fixed inset-y-0 left-0 w-80 bg-slate-900 border-r border-slate-700 z-50 flex flex-col shadow-2xl">
+        <div class="p-4 bg-slate-800 flex justify-between items-center border-b border-slate-700">
+            <h2 class="font-black text-xl"><i class="fa-solid fa-user-shield text-blue-400 mr-2"></i> MARSHAL</h2>
+            <button onclick="document.getElementById('marshalDrawer').classList.remove('open')" class="text-slate-400 text-2xl"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-6 space-y-6">
+            <div>
+                <label class="block text-slate-400 font-bold text-sm uppercase mb-2">Adjust Clock</label>
+                <div class="flex space-x-2">
+                    <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white">-15 Min</button>
+                    <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white">+15 Min</button>
+                </div>
+            </div>
+            
+            <hr class="border-slate-700">
+            
+            <button onclick="endMatchEarly(true)" class="w-full bg-amber text-slate-900 font-black py-4 rounded-xl">
+                WRAP UP EARLY<br><span class="text-xs font-bold opacity-80">(Keep 10 Min Grace)</span>
+            </button>
+            
+            <button onclick="endMatchEarly(false)" class="w-full bg-red-600 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)]">
+                🚨 ABORT MATCH<br><span class="text-xs font-bold opacity-80">(Zero Grace Period)</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="view-results" class="hidden flex-1 flex flex-col bg-black text-white p-6 justify-center text-center space-y-6">
+        <h1 class="text-4xl font-black uppercase text-amber border-b-2 border-slate-700 pb-4">Match Finished</h1>
+        
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-6">
+            <p class="text-slate-400 font-bold uppercase tracking-widest text-sm mb-1">Your Final Score</p>
+            <p class="text-6xl font-black text-white" id="finalScore">0</p>
+        </div>
+        
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex justify-between items-center">
+            <p class="text-slate-400 font-bold">Total Fish:</p>
+            <p class="text-2xl font-black" id="finalCount">0</p>
+        </div>
+
+        <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-xl shadow-lg mt-8">
+            <i class="fa-brands fa-whatsapp mr-2"></i> Share Results
+        </button>
+        <button onclick="resetApp()" class="text-slate-500 font-bold mt-4 border-b border-slate-700 pb-1">Return to Home</button>
+    </div>
+
+
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /* FIREBASE STUB (Add your credentials here)                                  */
+        /* -------------------------------------------------------------------------- */
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        // import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        // const firebaseConfig = { apiKey: "YOUR_KEY", projectId: "YOUR_PROJECT" };
+        // const app = initializeApp(firebaseConfig);
+        // const db = getDatabase(app);
+
+        /* -------------------------------------------------------------------------- */
+        /* APPLICATION STATE & GHOST BOOT (LocalStorage)                              */
+        /* -------------------------------------------------------------------------- */
+        let state = {
+            view: 'home',
+            name: '',
+            isHost: false,
+            pin: '',
+            format: 'length',
+            endTime: null,
+            graceEndTime: null,
+            myCatches: [],
+            mackerelCount: 0,
+            editingId: null,
+            status: 'idle' // idle, waiting, playing, grace, finished
+        };
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+
+        // Ghost Boot: Load on start
+        window.onload = () => {
+            const saved = localStorage.getItem('matchState');
+            if (saved) {
+                state = JSON.parse(saved);
+                document.getElementById('playerName').value = state.name;
+                // If in middle of match, jump straight to fishing view
+                if (state.status === 'playing' || state.status === 'grace') {
+                    navTo('fishing');
+                    renderCatchList();
+                    startClock();
+                } else {
+                    navTo('home');
+                }
+            } else {
+                navTo('home');
+            }
+        };
+
+        function saveState() {
+            localStorage.setItem('matchState', JSON.stringify(state));
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* NAVIGATION & UI LOGIC                                                      */
+        /* -------------------------------------------------------------------------- */
+        function navTo(viewId) {
+            document.querySelectorAll('body > div[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            state.view = viewId;
+            saveState();
+        }
+
+        /* ATM Pad Logic */
+        let atmPin = "";
+        function atmPress(num) {
+            if (atmPin.length < 4) {
+                atmPin += num;
+                updateAtmDisplay();
+                if (atmPin.length === 4) {
+                    document.getElementById('btn-connect').classList.remove('hidden');
+                }
+            }
+        }
+        function atmDelete() {
+            atmPin = atmPin.slice(0, -1);
+            updateAtmDisplay();
+            document.getElementById('btn-connect').classList.add('hidden');
+        }
+        function updateAtmDisplay() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`pin-${i}`).innerText = atmPin[i-1] || "";
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* MATCH SETUP (MARSHAL)                                                      */
+        /* -------------------------------------------------------------------------- */
+        function createMatch() {
+            state.name = document.getElementById('playerName').value || "Marshal";
+            state.isHost = true;
+            state.format = document.getElementById('hostFormat').value;
+            state.pin = Math.floor(1000 + Math.random() * 9000).toString(); // Generate random 4 digit
+            
+            document.getElementById('displayPin').innerText = state.pin;
+            document.getElementById('hostControls').classList.remove('hidden');
+            document.getElementById('joinerWaitingText').classList.add('hidden');
+            
+            navTo('waiting');
+        }
+
+        function connectToMatch() {
+            state.name = document.getElementById('playerName').value || "Angler";
+            state.isHost = false;
+            state.pin = atmPin;
+            
+            document.getElementById('displayPin').innerText = state.pin;
+            document.getElementById('hostControls').classList.add('hidden');
+            document.getElementById('joinerWaitingText').classList.remove('hidden');
+            
+            navTo('waiting');
+            // Here you would connect to Firebase to listen for host start signal
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* TIMING, AUDIO & HYPE START                                                 */
+        /* -------------------------------------------------------------------------- */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playSyntheticTone(freq, type, duration) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playHorn() { playSyntheticTone(200, 'sawtooth', 1.5); }
+        function playWarningBeep() { 
+            playSyntheticTone(600, 'square', 0.2); 
+            setTimeout(() => playSyntheticTone(600, 'square', 0.4), 300);
+        }
+
+        function triggerHypeStart() {
+            // Set end time 4 hours from now (in reality, driven by Marshal input)
+            let durationHours = parseFloat(document.getElementById('hostDuration').value || 4);
+            let msDuration = durationHours * 60 * 60 * 1000;
+            state.endTime = Date.now() + msDuration;
+            
+            // Initiate Hype Start
+            navTo('hype');
+            let count = 10;
+            document.getElementById('hypeCount').innerText = count;
+            playSyntheticTone(400, 'sine', 0.1);
+
+            let hypeInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    document.getElementById('hypeCount').innerText = count;
+                    playSyntheticTone(400, 'sine', 0.1);
+                } else {
+                    clearInterval(hypeInterval);
+                    playHorn();
+                    beginFishing();
+                }
+            }, 1000);
+        }
+
+        function beginFishing() {
+            state.status = 'playing';
+            if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
+            
+            // Configure UI based on format
+            let label = document.getElementById('labelSize');
+            if(state.format.includes('weight')) label.innerText = "Weight";
+            else label.innerText = "Size (cm)";
+
+            navTo('fishing');
+            startClock();
+        }
+
+        let clockInterval;
+        let warningPlayed = false;
+
+        function startClock() {
+            clearInterval(clockInterval);
+            clockInterval = setInterval(() => {
+                let now = Date.now();
+                let remaining = state.endTime - now;
+
+                if (state.status === 'playing') {
+                    if (remaining <= 20 * 60 * 1000 && !warningPlayed) {
+                        playWarningBeep();
+                        warningPlayed = true;
+                        document.getElementById('statusBanner').innerText = "LAST CAST: 20 MINS REMAINING";
+                        document.getElementById('statusBanner').classList.remove('hidden');
+                        document.getElementById('statusBanner').classList.add('bg-amber', 'text-slate-900');
+                    }
+
+                    if (remaining <= 0) {
+                        // Match over, enter Grace Period
+                        playHorn();
+                        state.status = 'grace';
+                        state.graceEndTime = Date.now() + (10 * 60 * 1000); // 10 mins
+                        document.getElementById('statusBanner').innerText = "MATCH OVER - 10 MIN GRACE TO REEL IN";
+                        document.getElementById('statusBanner').classList.remove('bg-amber', 'text-slate-900');
+                        document.getElementById('statusBanner').classList.add('bg-red-600', 'text-white');
+                        document.getElementById('statusBanner').classList.remove('hidden');
+                        saveState();
+                    } else {
+                        updateTimerDisplay(remaining);
+                    }
+                } 
+                else if (state.status === 'grace') {
+                    let graceRemaining = state.graceEndTime - now;
+                    if (graceRemaining <= 0) {
+                        lockdownMatch();
+                    } else {
+                        updateTimerDisplay(graceRemaining);
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+            document.getElementById('mainTimer').innerText = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* CATCH LOGGING & THE MACKEREL RULE                                          */
+        /* -------------------------------------------------------------------------- */
+        function adjustSize(val) {
+            let input = document.getElementById('inputSize');
+            let current = parseFloat(input.value) || 0;
+            input.value = current + val;
+        }
+
+        function recordCatch() {
+            let species = document.getElementById('inputSpecies').value;
+            let size = parseFloat(document.getElementById('inputSize').value) || 0;
+            if(size === 0) return;
+
+            let points = size; 
+            
+            // The Mackerel Rule
+            if (species === 'Mackerel') {
+                state.mackerelCount++;
+                if (state.mackerelCount > 3) {
+                    points = 0; // 4th Mackerel onwards is 0 points
+                }
+            }
+
+            if (state.editingId) {
+                // Editing existing
+                let catchObj = state.myCatches.find(c => c.id === state.editingId);
+                if(catchObj) {
+                    catchObj.species = species;
+                    catchObj.size = size;
+                    catchObj.points = points;
+                }
+                state.editingId = null;
+                document.getElementById('btnRecord').innerText = "RECORD CATCH";
+                document.getElementById('btnRecord').classList.replace('bg-amber', 'bg-blue-600');
+            } else {
+                // New catch
+                state.myCatches.unshift({
+                    id: Date.now().toString(),
+                    species: species,
+                    size: size,
+                    points: points,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                
+                // Keep Species Stickiness (Shoal Mode)
+                document.getElementById('inputSize').value = "";
+            }
+            
+            saveState();
+            renderCatchList();
+            
+            // In a live app, this is where you push state.myCatches to Firebase
+        }
+
+        function editCatch(id) {
+            let catchObj = state.myCatches.find(c => c.id === id);
+            if(catchObj) {
+                document.getElementById('inputSpecies').value = catchObj.species;
+                document.getElementById('inputSize').value = catchObj.size;
+                state.editingId = id;
+                document.getElementById('btnRecord').innerText = "UPDATE CATCH";
+                document.getElementById('btnRecord').classList.replace('bg-blue-600', 'bg-amber');
+            }
+        }
+
+        function deleteCatch(id) {
+            let catchObj = state.myCatches.find(c => c.id === id);
+            if (catchObj && catchObj.species === 'Mackerel') state.mackerelCount--;
+            state.myCatches = state.myCatches.filter(c => c.id !== id);
+            saveState();
+            renderCatchList();
+        }
+
+        function renderCatchList() {
+            const list = document.getElementById('localCatchList');
+            list.innerHTML = "";
+            
+            let totalPts = 0;
+
+            state.myCatches.forEach(c => {
+                totalPts += c.points;
+                let div = document.createElement('div');
+                div.className = "bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center active:bg-slate-700 transition";
+                div.innerHTML = `
+                    <div class="flex-1" onclick="editCatch('${c.id}')">
+                        <span class="font-bold text-white">${c.species}</span> 
+                        <span class="text-slate-400 text-sm ml-2">${c.size}</span>
+                        ${c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(0 Pts)</span>' : ''}
+                    </div>
+                    <button onclick="deleteCatch('${c.id}')" class="text-slate-500 hover:text-red-500 px-3 py-1">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+
+            // Auto-update biggest fish for demo purposes
+            if(state.myCatches.length > 0) {
+                let biggest = state.myCatches.reduce((max, obj) => obj.size > max.size ? obj : max);
+                document.getElementById('bountyBanner').innerText = `${state.name} - ${biggest.size} ${biggest.species}`;
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* MARSHAL EMERGENCY CONTROLS                                                 */
+        /* -------------------------------------------------------------------------- */
+        function endMatchEarly(keepGrace) {
+            document.getElementById('marshalDrawer').classList.remove('open');
+            if (keepGrace) {
+                state.endTime = Date.now(); // Drop main timer to 0 immediately
+                saveState();
+            } else {
+                // Abort completely
+                playSyntheticTone(800, 'sawtooth', 3.0); // Continuous siren
+                lockdownMatch();
+            }
+        }
+
+        function lockdownMatch() {
+            clearInterval(clockInterval);
+            state.status = 'finished';
+            saveState();
+            
+            // Calculate final score
+            let finalScore = state.myCatches.reduce((sum, c) => sum + c.points, 0);
+            document.getElementById('finalScore').innerText = finalScore;
+            document.getElementById('finalCount').innerText = state.myCatches.length;
+            
+            navTo('results');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* WAKE LOCK API & POST MATCH SHARE                                           */
+        /* -------------------------------------------------------------------------- */
+        let wakeLock = null;
+        async function toggleWakeLock() {
+            const btn = document.getElementById('wakeLockBtn');
+            if (wakeLock !== null) {
+                await wakeLock.release();
+                wakeLock = null;
+                btn.innerHTML = `<i class="fa-solid fa-moon"></i> Sleep`;
+                btn.classList.replace('text-amber', 'text-slate-400');
+                btn.classList.replace('border-amber', 'border-slate-600');
+            } else {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    btn.innerHTML = `<i class="fa-solid fa-sun"></i> Awake`;
+                    btn.classList.replace('text-slate-400', 'text-amber');
+                    btn.classList.replace('border-slate-600', 'border-amber');
+                } catch (err) {
+                    alert('Wake Lock not supported on this browser.');
+                }
+            }
+        }
+
+        function shareResults() {
+            let finalScore = document.getElementById('finalScore').innerText;
+            let text = `🎣 *Match Results - PIN ${state.pin}*\n\nAngler: ${state.name}\nFinal Score: ${finalScore}\nTotal Fish: ${state.myCatches.length}\n\n`;
+            state.myCatches.forEach(c => { text += `- ${c.species} (${c.size})\n`; });
+            
+            if (navigator.share) {
+                navigator.share({ title: 'Match Results', text: text });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+            }
+        }
+
+        function resetApp() {
+            localStorage.removeItem('matchState');
+            location.reload();
+        }
+    </script>
+</body>
+</html>
