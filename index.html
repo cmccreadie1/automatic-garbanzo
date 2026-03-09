@@ -10,7 +10,6 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        /* AGGRESSIVE PULL-TO-REFRESH KILLER & PORTRAIT LOCK */
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a; 
@@ -19,20 +18,18 @@
             user-select: none;
             width: 100%;
             height: 100%;
-            position: fixed; /* Bolts the body to the viewport */
-            overflow: hidden; /* Prevents any native bouncing */
+            position: fixed; 
+            overflow: hidden; 
             overscroll-behavior: none;
-            touch-action: none; /* Disables browser gestures on the background */
+            touch-action: none; 
         }
 
-        /* Allow scrolling only inside specific containers */
         .scrollable-area {
             overflow-y: auto;
             touch-action: pan-y;
             overscroll-behavior-y: contain;
         }
 
-        /* LANDSCAPE BOUNCER */
         #landscape-warning { display: none; }
         @media screen and (orientation: landscape) {
             #app-container { display: none !important; }
@@ -108,7 +105,7 @@
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest">v1.6</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.0</div>
             </div>
             
             <div class="w-full max-w-sm space-y-4 pt-4">
@@ -215,13 +212,13 @@
                 <div class="text-7xl font-black text-white tracking-widest bg-slate-800 py-4 px-8 rounded-2xl border-2 border-slate-600" id="displayPin">0000</div>
                 
                 <div id="hostControls" class="hidden w-full max-w-sm pt-8">
-                    <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Waiting for anglers...</p>
+                    <p class="text-amber mb-4 font-bold"><i class="fa-solid fa-users mr-2"></i> Cloud Synced & Ready</p>
                     <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-xl animate-pulse">
                         🚨 START MATCH NOW
                     </button>
                 </div>
                 <div id="joinerWaitingText" class="w-full max-w-sm pt-8">
-                    <p class="text-xl font-bold text-slate-300">Waiting for Marshal to blow the whistle...</p>
+                    <p class="text-xl font-bold text-slate-300">Connected to Cloud. Waiting for Marshal to start...</p>
                     <i class="fa-solid fa-spinner fa-spin text-4xl text-amber mt-8"></i>
                 </div>
             </div>
@@ -244,8 +241,8 @@
             </div>
             
             <div class="flex-none w-full bg-slate-800 border-b border-slate-700 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.3)] z-10">
-                <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber font-black text-lg uppercase tracking-widest active:bg-slate-700 transition">
-                    <i class="fa-solid fa-list-ol mr-2"></i> View Leaderboard
+                <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber font-black text-lg uppercase tracking-widest active:bg-slate-700 transition flex items-center justify-center">
+                    <i class="fa-solid fa-list-ol mr-2"></i> View Global Leaderboard <i class="fa-solid fa-cloud ml-2 text-xs text-blue-400"></i>
                 </button>
             </div>
 
@@ -314,7 +311,7 @@
                 </button>
 
                 <div class="pt-4">
-                    <h3 class="text-slate-500 font-bold text-sm uppercase mb-2">My Log (Tap to Edit)</h3>
+                    <h3 class="text-slate-500 font-bold text-sm uppercase mb-2">My Local Log (Tap to Edit)</h3>
                     <div id="localCatchList" class="space-y-2">
                         </div>
                 </div>
@@ -351,11 +348,11 @@
             </button>
 
             <div class="p-4 bg-slate-800 flex justify-center items-center border-b border-slate-700">
-                <h2 class="font-black text-xl" id="leaderboardTitle"><i class="fa-solid fa-trophy text-amber mr-2"></i> MATCH LEADERBOARD</h2>
+                <h2 class="font-black text-xl" id="leaderboardTitle"><i class="fa-solid fa-trophy text-amber mr-2"></i> GLOBAL LEADERBOARD</h2>
             </div>
             
             <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600" id="bountyContainer">
-                <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish</p>
+                <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish (Global)</p>
                 <p class="font-black text-lg" id="bountyBanner">Waiting for catch...</p>
             </div>
 
@@ -373,8 +370,8 @@
                 <div>
                     <label class="block text-slate-400 font-bold text-sm uppercase mb-2">Adjust Clock</label>
                     <div class="flex space-x-2">
-                        <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">-15 Min</button>
-                        <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">+15 Min</button>
+                        <button onclick="adjustClock(-15)" class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">-15 Min</button>
+                        <button onclick="adjustClock(15)" class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">+15 Min</button>
                     </div>
                 </div>
                 
@@ -416,13 +413,34 @@
             <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-xl shadow-lg mt-8 active:bg-green-700">
                 <i class="fa-brands fa-whatsapp mr-2"></i> Share Results
             </button>
+            
             <button onclick="resetApp()" class="text-slate-500 font-bold mt-4 border-b border-slate-700 pb-1 active:text-white">Return to Home</button>
         </div>
 
-    </div> <script>
-        /* -------------------------------------------------------------------------- */
-        /* APPLICATION STATE & GHOST BOOT                                             */
-        /* -------------------------------------------------------------------------- */
+    </div> <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAEDi6Zr6eR88jfCiBE05zTiXaRtd3dioY",
+            authDomain: "sea-diary-match.firebaseapp.com",
+            databaseURL: "https://sea-diary-match-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "sea-diary-match",
+            storageBucket: "sea-diary-match.firebasestorage.app",
+            messagingSenderId: "32868968041",
+            appId: "1:32868968041:web:a5c7547cbd69c323cb64f8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // State & Tracking
+        let uid = localStorage.getItem('matchUid');
+        if (!uid) {
+            uid = 'u_' + Date.now() + Math.floor(Math.random() * 1000);
+            localStorage.setItem('matchUid', uid);
+        }
+
         let state = {
             view: 'home',
             name: '',
@@ -436,9 +454,36 @@
             status: 'idle' 
         };
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js');
-        }
+        let matchRef = null;
+        let globalMatchData = null;
+        let clockInterval;
+        let warningPlayed = false;
+
+        // BIND FUNCTIONS TO WINDOW (Needed because type="module" limits scope)
+        window.navTo = navTo;
+        window.forceUpdateApp = forceUpdateApp;
+        window.atmPress = atmPress;
+        window.atmDelete = atmDelete;
+        window.connectToMatch = connectToMatch;
+        window.createMatch = createMatch;
+        window.exitWaitingRoom = exitWaitingRoom;
+        window.triggerHypeStart = triggerHypeStart;
+        window.toggleWakeLock = toggleWakeLock;
+        window.adjustSize = adjustSize;
+        window.recordCatch = recordCatch;
+        window.editCatch = editCatch;
+        window.deleteCatch = deleteCatch;
+        window.leaveMatchEarly = leaveMatchEarly;
+        window.viewHistoricalLeaderboard = viewHistoricalLeaderboard;
+        window.showLatecomerPin = showLatecomerPin;
+        window.transferMarshal = transferMarshal;
+        window.endMatchEarly = endMatchEarly;
+        window.adjustClock = adjustClock;
+        window.shareResults = shareResults;
+        window.resetApp = resetApp;
+
+        // --- GHOST BOOT & HISTORY TRAP ---
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('service-worker.js');
 
         window.onload = () => {
             history.pushState(null, null, window.location.href);
@@ -451,7 +496,8 @@
                     document.getElementById('playerName').value = state.name;
                     
                     if (oldState.status === 'playing' || oldState.status === 'grace') {
-                        state = oldState; // Restore full state
+                        state = oldState; 
+                        listenToMatchCloud(); // Re-attach to cloud
                         navTo('fishing');
                         renderCatchList();
                         startClock();
@@ -464,6 +510,7 @@
                         document.getElementById('finalCount').innerText = state.myCatches.length;
                     } else if (oldState.status === 'waiting' || oldState.view === 'waiting') {
                         state = oldState;
+                        listenToMatchCloud();
                         document.getElementById('displayPin').innerText = state.pin;
                         if(state.isHost) {
                             document.getElementById('hostControls').classList.remove('hidden');
@@ -478,7 +525,7 @@
                         navTo('home');
                     }
                 } catch(e) {
-                    console.error("Corrupt state, resetting");
+                    state.status = 'idle';
                     navTo('home');
                 }
             } else {
@@ -493,22 +540,15 @@
                 history.pushState(null, null, window.location.href); 
                 return;
             }
-
             if (state.view === 'fishing' || state.status === 'playing') {
-                if (confirm("Are you sure you want to exit the match? You can return via Ghost Boot.")) {
-                    window.history.back(); 
-                } else {
-                    history.pushState(null, null, window.location.href); 
-                }
+                if (confirm("Are you sure you want to exit the match? You can return via Ghost Boot.")) window.history.back(); 
+                else history.pushState(null, null, window.location.href); 
             } else if (state.view !== 'home') {
                 navTo('home');
                 history.pushState(null, null, window.location.href); 
             } else {
-                if (confirm("Are you sure you want to exit the app?")) {
-                    window.history.back(); 
-                } else {
-                    history.pushState(null, null, window.location.href); 
-                }
+                if (confirm("Are you sure you want to exit the app?")) window.history.back(); 
+                else history.pushState(null, null, window.location.href); 
             }
         });
 
@@ -517,25 +557,15 @@
         }
 
         function forceUpdateApp() {
-            const spinner = document.getElementById('updateSpinner');
-            spinner.classList.add('fa-spin');
-            
+            document.getElementById('updateSpinner').classList.add('fa-spin');
             localStorage.removeItem('matchState');
-            
             if ('caches' in window) {
-                caches.keys().then((names) => {
-                    names.forEach(name => { caches.delete(name); })
-                });
+                caches.keys().then((names) => { names.forEach(name => { caches.delete(name); }) });
             }
-            
-            setTimeout(() => {
-                window.location.reload(true);
-            }, 1000);
+            setTimeout(() => { window.location.reload(true); }, 1000);
         }
 
-        /* -------------------------------------------------------------------------- */
-        /* NAVIGATION & UI LOGIC                                                      */
-        /* -------------------------------------------------------------------------- */
+        // --- NAVIGATION ---
         function navTo(viewId) {
             document.querySelectorAll('#app-container > div[id^="view-"]').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
@@ -544,22 +574,12 @@
             saveState();
         }
 
-        function exitWaitingRoom() {
-            if (confirm("Leave the waiting room?")) {
-                state.status = 'idle';
-                state.pin = '';
-                navTo('home');
-            }
-        }
-
         let atmPin = "";
         function atmPress(num) {
             if (atmPin.length < 4) {
                 atmPin += num;
                 updateAtmDisplay();
-                if (atmPin.length === 4) {
-                    document.getElementById('btn-connect').classList.remove('hidden');
-                }
+                if (atmPin.length === 4) document.getElementById('btn-connect').classList.remove('hidden');
             }
         }
         function atmDelete() {
@@ -568,14 +588,73 @@
             document.getElementById('btn-connect').classList.add('hidden');
         }
         function updateAtmDisplay() {
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById(`pin-${i}`).innerText = atmPin[i-1] || "";
-            }
+            for (let i = 1; i <= 4; i++) document.getElementById(`pin-${i}`).innerText = atmPin[i-1] || "";
         }
 
-        /* -------------------------------------------------------------------------- */
-        /* MATCH SETUP (MARSHAL)                                                      */
-        /* -------------------------------------------------------------------------- */
+        // --- FIREBASE SYNC ENGINE ---
+        function listenToMatchCloud() {
+            if(!state.pin) return;
+            matchRef = ref(db, 'matches/' + state.pin);
+            onValue(matchRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    globalMatchData = snapshot.val();
+                    processCloudUpdate();
+                } else {
+                    if(state.status === 'waiting' || state.status === 'playing' || state.status === 'grace') {
+                        alert("This Match Room has been deleted or closed by the Marshal.");
+                        resetApp();
+                    }
+                }
+            });
+        }
+
+        function processCloudUpdate() {
+            // Check for Marshal Start Signal
+            if (state.status === 'waiting' && globalMatchData.status === 'playing') {
+                state.endTime = globalMatchData.endTime;
+                state.format = globalMatchData.format; // Lock format from cloud
+                beginFishing(false); 
+            }
+            // Check for Marshal Early End / Grace Signal
+            if (state.status === 'playing' && globalMatchData.status === 'grace') {
+                state.graceEndTime = globalMatchData.graceEndTime;
+                state.endTime = globalMatchData.endTime; // Jump clock to 0
+                state.status = 'grace';
+                saveState();
+            }
+            // Check for Marshal Abort / Final End
+            if (state.status !== 'finished' && globalMatchData.status === 'finished') {
+                lockdownMatch(false);
+            }
+            // Sync Time Adjustments
+            if (state.status === 'playing' && state.endTime !== globalMatchData.endTime) {
+                state.endTime = globalMatchData.endTime;
+            }
+            // Dynamic Host Transfer
+            if (globalMatchData.hostId === uid && !state.isHost) {
+                state.isHost = true;
+                if(state.status === 'playing') document.getElementById('btnMarshalPanel').classList.remove('hidden');
+                alert("You have been designated as the new Marshal!");
+            } else if (globalMatchData.hostId !== uid && state.isHost) {
+                state.isHost = false;
+                document.getElementById('btnMarshalPanel').classList.add('hidden');
+                document.getElementById('marshalDrawer').classList.remove('open');
+            }
+
+            renderGlobalLeaderboard();
+        }
+
+        function pushMyScoreToCloud() {
+            if(!matchRef) return;
+            let totalPts = state.myCatches.reduce((sum, c) => sum + c.points, 0);
+            update(ref(db, `matches/${state.pin}/anglers/${uid}`), {
+                name: state.name || "Angler",
+                score: totalPts,
+                catches: state.myCatches
+            });
+        }
+
+        // --- MATCH SETUP (MARSHAL) ---
         function createMatch() {
             state.name = document.getElementById('playerName').value || "Marshal";
             state.isHost = true;
@@ -583,11 +662,19 @@
             state.pin = Math.floor(1000 + Math.random() * 9000).toString(); 
             state.status = 'waiting';
             
-            document.getElementById('displayPin').innerText = state.pin;
-            document.getElementById('hostControls').classList.remove('hidden');
-            document.getElementById('joinerWaitingText').classList.add('hidden');
-            
-            navTo('waiting');
+            // Build Cloud Room
+            set(ref(db, 'matches/' + state.pin), {
+                hostId: uid,
+                format: state.format,
+                status: 'waiting',
+                createdAt: Date.now()
+            }).then(() => {
+                listenToMatchCloud();
+                document.getElementById('displayPin').innerText = state.pin;
+                document.getElementById('hostControls').classList.remove('hidden');
+                document.getElementById('joinerWaitingText').classList.add('hidden');
+                navTo('waiting');
+            }).catch((err) => alert("Cloud Error: " + err.message));
         }
 
         function connectToMatch() {
@@ -595,17 +682,43 @@
             state.isHost = false;
             state.pin = atmPin;
             state.status = 'waiting';
-            
-            document.getElementById('displayPin').innerText = state.pin;
-            document.getElementById('hostControls').classList.add('hidden');
-            document.getElementById('joinerWaitingText').classList.remove('hidden');
-            
-            navTo('waiting');
+
+            // Verify Cloud Room Exists
+            get(ref(db, 'matches/' + state.pin)).then((snapshot) => {
+                if (snapshot.exists()) {
+                    let data = snapshot.val();
+                    state.format = data.format;
+                    listenToMatchCloud();
+                    document.getElementById('displayPin').innerText = state.pin;
+                    document.getElementById('hostControls').classList.add('hidden');
+                    document.getElementById('joinerWaitingText').classList.remove('hidden');
+                    
+                    // Drop latecomers straight into active match
+                    if(data.status === 'playing' || data.status === 'grace') {
+                        state.endTime = data.endTime;
+                        if(data.status === 'grace') state.graceEndTime = data.graceEndTime;
+                        state.status = data.status;
+                        beginFishing(false);
+                    } else {
+                        navTo('waiting');
+                    }
+                } else {
+                    alert("Match PIN not found in the cloud.");
+                    atmPin = "";
+                    updateAtmDisplay();
+                    document.getElementById('btn-connect').classList.add('hidden');
+                }
+            });
         }
 
-        /* -------------------------------------------------------------------------- */
-        /* TIMING, AUDIO & HYPE START                                                 */
-        /* -------------------------------------------------------------------------- */
+        function exitWaitingRoom() {
+            if (confirm("Leave the waiting room?")) {
+                if (state.isHost) remove(ref(db, 'matches/' + state.pin)); // Clean up cloud
+                resetApp();
+            }
+        }
+
+        // --- TIMING & HYPE START ---
         const AudioContext = window.AudioContext || window.webkitAudioContext;
         const audioCtx = new AudioContext();
 
@@ -622,7 +735,6 @@
             osc.start();
             osc.stop(audioCtx.currentTime + duration);
         }
-
         function playHorn() { playSyntheticTone(200, 'sawtooth', 1.5); }
         function playWarningBeep() { 
             playSyntheticTone(600, 'square', 0.2); 
@@ -647,14 +759,21 @@
                 } else {
                     clearInterval(hypeInterval);
                     playHorn();
-                    beginFishing();
+                    beginFishing(true); // true = push to cloud
                 }
             }, 1000);
         }
 
-        function beginFishing() {
+        function beginFishing(isPushingToCloud) {
             state.status = 'playing';
             if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
+            
+            if (isPushingToCloud && state.isHost) {
+                update(ref(db, 'matches/' + state.pin), { status: 'playing', endTime: state.endTime });
+            }
+
+            // Sync empty score immediately so angler appears on board
+            pushMyScoreToCloud();
             
             let label = document.getElementById('labelSize');
             if (state.format.includes('weight')) {
@@ -669,13 +788,9 @@
             }
 
             navTo('fishing');
-            document.getElementById('leaderboardTitle').innerHTML = '<i class="fa-solid fa-trophy text-amber mr-2"></i> MATCH LEADERBOARD';
-            updateLeaderboard();
+            document.getElementById('leaderboardTitle').innerHTML = '<i class="fa-solid fa-cloud text-blue-400 mr-2"></i> GLOBAL LEADERBOARD';
             startClock();
         }
-
-        let clockInterval;
-        let warningPlayed = false;
 
         function startClock() {
             clearInterval(clockInterval);
@@ -695,7 +810,7 @@
                     if (remaining <= 0) {
                         playHorn();
                         state.status = 'grace';
-                        state.graceEndTime = Date.now() + (10 * 60 * 1000); 
+                        if (!state.graceEndTime) state.graceEndTime = Date.now() + (10 * 60 * 1000); 
                         document.getElementById('statusBanner').innerText = "MATCH OVER - 10 MIN GRACE TO REEL IN";
                         document.getElementById('statusBanner').classList.remove('bg-amber', 'text-slate-900');
                         document.getElementById('statusBanner').classList.add('bg-red-600', 'text-white');
@@ -708,7 +823,7 @@
                 else if (state.status === 'grace') {
                     let graceRemaining = state.graceEndTime - now;
                     if (graceRemaining <= 0) {
-                        lockdownMatch();
+                        lockdownMatch(state.isHost);
                     } else {
                         updateTimerDisplay(graceRemaining);
                     }
@@ -725,14 +840,245 @@
                 `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
         }
 
-        /* -------------------------------------------------------------------------- */
-        /* MATCH HISTORY ENGINE                                                       */
-        /* -------------------------------------------------------------------------- */
+        // --- CATCH LOGGING & SCORING ---
+        function adjustSize(val) {
+            let input = document.getElementById('inputSize');
+            let current = parseFloat(input.value) || 0;
+            input.value = current + val;
+        }
+
+        function recordCatch() {
+            let species = document.getElementById('inputSpecies').value;
+            if (!species) { alert("Please select a species!"); return; }
+
+            let size = parseFloat(document.getElementById('inputSize').value) || 0;
+            let points = size; 
+            
+            if (state.format === 'speciesHunt') {
+                let existingCount = state.myCatches.filter(c => c.species === species && c.id !== state.editingId).length;
+                if (existingCount === 0) points = 25;
+                else if (existingCount === 1) points = 35;
+                else if (existingCount === 2) points = 40;
+                else points = 1;
+            } else {
+                if (species === 'Mackerel') {
+                    let macCount = state.myCatches.filter(c => c.species === 'Mackerel' && c.id !== state.editingId).length;
+                    if (macCount >= 3) points = 0; 
+                }
+            }
+
+            if (state.editingId) {
+                let catchObj = state.myCatches.find(c => c.id === state.editingId);
+                if(catchObj) { catchObj.species = species; catchObj.size = size; catchObj.points = points; }
+                state.editingId = null;
+                document.getElementById('btnRecord').innerText = "RECORD CATCH";
+                document.getElementById('btnRecord').classList.replace('bg-amber', 'bg-blue-600');
+            } else {
+                state.myCatches.unshift({
+                    id: Date.now().toString(),
+                    species: species,
+                    size: size,
+                    points: points,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+            }
+
+            document.getElementById('inputSpecies').value = "";
+            document.getElementById('inputSize').value = "";
+            
+            saveState();
+            renderCatchList();
+            pushMyScoreToCloud(); // INSTANT SYNC TO ALL PHONES
+        }
+
+        function editCatch(id) {
+            let catchObj = state.myCatches.find(c => c.id === id);
+            if(catchObj) {
+                document.getElementById('inputSpecies').value = catchObj.species;
+                document.getElementById('inputSize').value = catchObj.size;
+                state.editingId = id;
+                document.getElementById('btnRecord').innerText = "UPDATE CATCH";
+                document.getElementById('btnRecord').classList.replace('bg-blue-600', 'bg-amber');
+            }
+        }
+
+        function deleteCatch(id) {
+            state.myCatches = state.myCatches.filter(c => c.id !== id);
+            
+            if (state.format === 'speciesHunt') {
+                let counts = {};
+                let tempCatches = [...state.myCatches].reverse(); 
+                tempCatches.forEach(c => {
+                    counts[c.species] = (counts[c.species] || 0) + 1;
+                    let num = counts[c.species];
+                    if (num === 1) c.points = 25;
+                    else if (num === 2) c.points = 35;
+                    else if (num === 3) c.points = 40;
+                    else c.points = 1;
+                });
+                state.myCatches = tempCatches.reverse(); 
+            }
+
+            saveState();
+            renderCatchList();
+            pushMyScoreToCloud(); // INSTANT SYNC TO ALL PHONES
+        }
+
+        function renderCatchList() {
+            const list = document.getElementById('localCatchList');
+            list.innerHTML = "";
+
+            state.myCatches.forEach(c => {
+                let div = document.createElement('div');
+                div.className = "bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center active:bg-slate-700 transition";
+                
+                let pointsLabel = "";
+                if (state.format === 'speciesHunt') {
+                    if (c.points === 25) pointsLabel = '<span class="text-green-400 text-xs ml-2 font-bold">(1st - 25 Pts)</span>';
+                    else if (c.points === 35) pointsLabel = '<span class="text-blue-400 text-xs ml-2 font-bold">(2nd - 35 Pts)</span>';
+                    else if (c.points === 40) pointsLabel = '<span class="text-purple-400 text-xs ml-2 font-bold">(3rd - 40 Pts)</span>';
+                    else pointsLabel = '<span class="text-slate-400 text-xs ml-2 font-bold">(1 Pt)</span>';
+                } else {
+                    pointsLabel = c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(0 Pts)</span>' : '';
+                }
+
+                div.innerHTML = `
+                    <div class="flex-1" onclick="editCatch('${c.id}')">
+                        <span class="font-bold text-white">${c.species}</span> 
+                        <span class="text-slate-400 text-sm ml-2">${c.size > 0 ? c.size : ''}</span>
+                        ${pointsLabel}
+                    </div>
+                    <button onclick="deleteCatch('${c.id}')" class="text-slate-500 hover:text-red-500 px-4 py-2 text-lg active:text-red-400">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        // --- GLOBAL CLOUD LEADERBOARD ---
+        function renderGlobalLeaderboard() {
+            if (!globalMatchData || !globalMatchData.anglers) return;
+            const board = document.getElementById('leaderboardList');
+            
+            // Extract all anglers from cloud into array
+            let anglersArray = [];
+            for (const [key, val] of Object.entries(globalMatchData.anglers)) {
+                anglersArray.push(val);
+            }
+            // Sort by highest score
+            anglersArray.sort((a, b) => b.score - a.score);
+
+            board.innerHTML = anglersArray.map((angler, index) => {
+                let rank = index + 1;
+                let color = rank === 1 ? 'text-amber' : 'text-slate-400';
+                let border = rank === 1 ? 'border-l-amber' : 'border-l-slate-600';
+                return `
+                    <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 border-l-4 ${border} flex justify-between items-center shadow-md mt-2">
+                        <div>
+                            <span class="font-bold ${color}">${rank}${rank===1?'st':rank===2?'nd':rank===3?'rd':'th'}</span> 
+                            <span class="font-bold ml-2 text-white text-lg">${angler.name}</span>
+                        </div>
+                        <div class="font-black text-2xl text-white">${angler.score} <span class="text-sm text-slate-400">pts</span></div>
+                    </div>
+                `;
+            }).join('');
+
+            // Calculate Global Biggest Fish Bounty
+            if (state.format !== 'speciesHunt') {
+                let biggestSize = 0;
+                let biggestString = "Waiting for catch...";
+                for (const angler of anglersArray) {
+                    if (angler.catches) {
+                        for (const c of angler.catches) {
+                            if (c.size > biggestSize) {
+                                biggestSize = c.size;
+                                biggestString = `${angler.name} - ${c.size} ${c.species}`;
+                            }
+                        }
+                    }
+                }
+                document.getElementById('bountyBanner').innerText = biggestString;
+            }
+        }
+
+        // --- MARSHAL CLOUD CONTROLS ---
+        function adjustClock(minutes) {
+            if(!state.isHost) return;
+            let newEndTime = state.endTime + (minutes * 60 * 1000);
+            update(ref(db, 'matches/' + state.pin), { endTime: newEndTime });
+            alert(`Clock adjusted by ${minutes} minutes for all anglers.`);
+        }
+
+        function showLatecomerPin() {
+            alert(`The Match PIN is: ${state.pin}\n\nLatecomers can enter this to instantly sync with the cloud.`);
+        }
+
+        function transferMarshal() {
+            if (!globalMatchData || !globalMatchData.anglers) return;
+            let options = [];
+            for (const [key, val] of Object.entries(globalMatchData.anglers)) {
+                if(key !== uid) options.push({id: key, name: val.name});
+            }
+            
+            if(options.length === 0) {
+                alert("No other anglers are currently connected to the cloud.");
+                return;
+            }
+
+            let promptText = "Enter the number of the angler to make Host:\n";
+            options.forEach((opt, idx) => promptText += `${idx + 1}: ${opt.name}\n`);
+            let choice = prompt(promptText);
+            
+            if (choice && parseInt(choice) > 0 && parseInt(choice) <= options.length) {
+                let newHostId = options[parseInt(choice) - 1].id;
+                update(ref(db, 'matches/' + state.pin), { hostId: newHostId });
+                // Cloud push will automatically update local UI via listener
+            }
+        }
+
+        function endMatchEarly(keepGrace) {
+            document.getElementById('marshalDrawer').classList.remove('open');
+            if (keepGrace) {
+                let tEnd = Date.now();
+                let gEnd = Date.now() + (10 * 60 * 1000);
+                update(ref(db, 'matches/' + state.pin), { status: 'grace', endTime: tEnd, graceEndTime: gEnd });
+            } else {
+                update(ref(db, 'matches/' + state.pin), { status: 'finished' });
+            }
+        }
+
+        function leaveMatchEarly() {
+            if (confirm("Leave early? Your score remains on the Global Cloud Leaderboard.")) {
+                saveToHistory(true); 
+                state.status = 'idle';
+                state.isHost = false; 
+                state.myCatches = []; 
+                navTo('home');
+            }
+        }
+
+        function lockdownMatch(isHostPushing) {
+            clearInterval(clockInterval);
+            if (isHostPushing && state.isHost) {
+                update(ref(db, 'matches/' + state.pin), { status: 'finished' });
+            }
+            saveToHistory(false); 
+            state.status = 'finished';
+            saveState();
+            
+            let finalScore = state.myCatches.reduce((sum, c) => sum + c.points, 0);
+            document.getElementById('finalScore').innerText = finalScore;
+            document.getElementById('finalCount').innerText = state.myCatches.length;
+            
+            navTo('results');
+        }
+
+        // --- MATCH HISTORY ENGINE ---
         function saveToHistory(isLive) {
             let history = JSON.parse(localStorage.getItem('matchHistory') || '[]');
             let matchId = state.pin + '_' + state.endTime;
             let existingIdx = history.findIndex(m => m.id === matchId);
-            
             let totalScore = state.myCatches.reduce((sum, c) => sum + c.points, 0);
 
             let matchRecord = {
@@ -767,7 +1113,7 @@
                     <div>
                         <div class="flex items-center space-x-2 mb-1">
                             <span class="font-black text-lg text-white">${m.date}</span>
-                            ${m.isLive ? '<span class="bg-red-500/20 text-red-500 px-2 py-0.5 rounded text-xs font-bold border border-red-500/50 animate-pulse">LIVE</span>' : '<span class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-xs font-bold">ENDED</span>'}
+                            ${m.isLive ? '<span class="bg-red-500/20 text-red-500 px-2 py-0.5 rounded text-xs font-bold border border-red-500/50 animate-pulse">EXITED EARLY</span>' : '<span class="bg-slate-700 text-slate-300 px-2 py-0.5 rounded text-xs font-bold">ENDED</span>'}
                         </div>
                         <div class="text-sm text-slate-400">PIN: <span class="text-amber font-bold">${m.pin}</span> | ${m.fishCount} Fish</div>
                     </div>
@@ -807,216 +1153,14 @@
                         <div class="font-black text-2xl text-white">${match.score} <span class="text-sm text-slate-400">pts</span></div>
                     </div>
                     <div class="text-center mt-4 text-xs text-slate-500 font-bold uppercase">
-                        ${match.isLive ? 'Showing scores at time of exit' : 'Final Match Results'}
+                        ${match.isLive ? 'Showing your personal local log' : 'Final Personal Log'}
                     </div>
                 `;
                 document.getElementById('leaderboardDrawer').classList.add('open');
             }
         }
 
-        /* -------------------------------------------------------------------------- */
-        /* CATCH LOGGING, MACKEREL RULE, & SPECIES HUNT LOGIC                         */
-        /* -------------------------------------------------------------------------- */
-        function adjustSize(val) {
-            let input = document.getElementById('inputSize');
-            let current = parseFloat(input.value) || 0;
-            input.value = current + val;
-        }
-
-        function recordCatch() {
-            let species = document.getElementById('inputSpecies').value;
-            if (!species) {
-                alert("Please select a species!");
-                return;
-            }
-
-            let size = parseFloat(document.getElementById('inputSize').value) || 0;
-            let points = size; 
-            
-            if (state.format === 'speciesHunt') {
-                let existingCount = state.myCatches.filter(c => c.species === species && c.id !== state.editingId).length;
-                if (existingCount === 0) points = 25;
-                else if (existingCount === 1) points = 35;
-                else if (existingCount === 2) points = 40;
-                else points = 1;
-            } else {
-                if (species === 'Mackerel') {
-                    let macCount = state.myCatches.filter(c => c.species === 'Mackerel' && c.id !== state.editingId).length;
-                    if (macCount >= 3) points = 0; 
-                }
-            }
-
-            if (state.editingId) {
-                let catchObj = state.myCatches.find(c => c.id === state.editingId);
-                if(catchObj) {
-                    catchObj.species = species;
-                    catchObj.size = size;
-                    catchObj.points = points;
-                }
-                state.editingId = null;
-                document.getElementById('btnRecord').innerText = "RECORD CATCH";
-                document.getElementById('btnRecord').classList.replace('bg-amber', 'bg-blue-600');
-            } else {
-                state.myCatches.unshift({
-                    id: Date.now().toString(),
-                    species: species,
-                    size: size,
-                    points: points,
-                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-                });
-            }
-
-            document.getElementById('inputSpecies').value = "";
-            document.getElementById('inputSize').value = "";
-            
-            saveState();
-            renderCatchList();
-        }
-
-        function editCatch(id) {
-            let catchObj = state.myCatches.find(c => c.id === id);
-            if(catchObj) {
-                document.getElementById('inputSpecies').value = catchObj.species;
-                document.getElementById('inputSize').value = catchObj.size;
-                state.editingId = id;
-                document.getElementById('btnRecord').innerText = "UPDATE CATCH";
-                document.getElementById('btnRecord').classList.replace('bg-blue-600', 'bg-amber');
-            }
-        }
-
-        function deleteCatch(id) {
-            state.myCatches = state.myCatches.filter(c => c.id !== id);
-            
-            if (state.format === 'speciesHunt') {
-                let counts = {};
-                let tempCatches = [...state.myCatches].reverse(); 
-                tempCatches.forEach(c => {
-                    counts[c.species] = (counts[c.species] || 0) + 1;
-                    let num = counts[c.species];
-                    if (num === 1) c.points = 25;
-                    else if (num === 2) c.points = 35;
-                    else if (num === 3) c.points = 40;
-                    else c.points = 1;
-                });
-                state.myCatches = tempCatches.reverse(); 
-            }
-
-            saveState();
-            renderCatchList();
-        }
-
-        function renderCatchList() {
-            const list = document.getElementById('localCatchList');
-            list.innerHTML = "";
-
-            state.myCatches.forEach(c => {
-                let div = document.createElement('div');
-                div.className = "bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center active:bg-slate-700 transition";
-                
-                let pointsLabel = "";
-                if (state.format === 'speciesHunt') {
-                    if (c.points === 25) pointsLabel = '<span class="text-green-400 text-xs ml-2 font-bold">(1st - 25 Pts)</span>';
-                    else if (c.points === 35) pointsLabel = '<span class="text-blue-400 text-xs ml-2 font-bold">(2nd - 35 Pts)</span>';
-                    else if (c.points === 40) pointsLabel = '<span class="text-purple-400 text-xs ml-2 font-bold">(3rd - 40 Pts)</span>';
-                    else pointsLabel = '<span class="text-slate-400 text-xs ml-2 font-bold">(1 Pt)</span>';
-                } else {
-                    pointsLabel = c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(0 Pts)</span>' : '';
-                }
-
-                div.innerHTML = `
-                    <div class="flex-1" onclick="editCatch('${c.id}')">
-                        <span class="font-bold text-white">${c.species}</span> 
-                        <span class="text-slate-400 text-sm ml-2">${c.size > 0 ? c.size : ''}</span>
-                        ${pointsLabel}
-                    </div>
-                    <button onclick="deleteCatch('${c.id}')" class="text-slate-500 hover:text-red-500 px-4 py-2 text-lg active:text-red-400">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                `;
-                list.appendChild(div);
-            });
-
-            if (state.format !== 'speciesHunt') {
-                if(state.myCatches.length > 0) {
-                    let biggest = state.myCatches.reduce((max, obj) => obj.size > max.size ? obj : max);
-                    document.getElementById('bountyBanner').innerText = `${state.name || 'Angler'} - ${biggest.size} ${biggest.species}`;
-                } else {
-                    document.getElementById('bountyBanner').innerText = "Waiting for catch...";
-                }
-            }
-
-            updateLeaderboard();
-        }
-
-        /* -------------------------------------------------------------------------- */
-        /* LEAVE MATCH EARLY & MARSHAL TOOLS                                          */
-        /* -------------------------------------------------------------------------- */
-        function updateLeaderboard() {
-            const board = document.getElementById('leaderboardList');
-            let totalPts = state.myCatches.reduce((sum, c) => sum + c.points, 0);
-
-            board.innerHTML = `
-                <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 border-l-4 border-l-amber flex justify-between items-center shadow-md mt-2">
-                    <div>
-                        <span class="font-bold text-amber">1st</span> 
-                        <span class="font-bold ml-2 text-white text-lg">${state.name || "Angler"}</span>
-                    </div>
-                    <div class="font-black text-2xl text-white">${totalPts} <span class="text-sm text-slate-400">pts</span></div>
-                </div>
-            `;
-        }
-
-        function leaveMatchEarly() {
-            if (confirm("Are you sure you want to leave the beach early? Your catches will remain on the cloud leaderboard.")) {
-                saveToHistory(true); 
-                state.status = 'idle';
-                state.isHost = false; 
-                state.myCatches = []; 
-                navTo('home');
-            }
-        }
-
-        function showLatecomerPin() {
-            alert(`The Match PIN is: ${state.pin}\n\nTell the latecomer to enter this on the Join screen.`);
-        }
-
-        function transferMarshal() {
-            if (confirm("Are you sure you want to pass Host controls to someone else? You will lose access to this Marshal panel.")) {
-                state.isHost = false;
-                document.getElementById('btnMarshalPanel').classList.add('hidden');
-                document.getElementById('marshalDrawer').classList.remove('open');
-                saveState();
-                alert("You are no longer the Marshal. (Note: Full transfer requires Firebase sync).");
-            }
-        }
-
-        function endMatchEarly(keepGrace) {
-            document.getElementById('marshalDrawer').classList.remove('open');
-            if (keepGrace) {
-                state.endTime = Date.now(); 
-                saveState();
-            } else {
-                playSyntheticTone(800, 'sawtooth', 3.0); 
-                lockdownMatch();
-            }
-        }
-
-        function lockdownMatch() {
-            clearInterval(clockInterval);
-            saveToHistory(false); 
-            state.status = 'finished';
-            saveState();
-            
-            let finalScore = state.myCatches.reduce((sum, c) => sum + c.points, 0);
-            document.getElementById('finalScore').innerText = finalScore;
-            document.getElementById('finalCount').innerText = state.myCatches.length;
-            
-            navTo('results');
-        }
-
-        /* -------------------------------------------------------------------------- */
-        /* WAKE LOCK API & POST MATCH SHARE                                           */
-        /* -------------------------------------------------------------------------- */
+        // --- HARDWARE & RESET ---
         let wakeLock = null;
         async function toggleWakeLock() {
             const btn = document.getElementById('wakeLockBtn');
@@ -1033,7 +1177,7 @@
                     btn.classList.replace('text-slate-400', 'text-amber');
                     btn.classList.replace('border-slate-600', 'border-amber');
                 } catch (err) {
-                    alert('Wake Lock not supported on this browser.');
+                    alert('Wake Lock not supported.');
                 }
             }
         }
@@ -1050,16 +1194,12 @@
             }
         }
 
-        // FULL WIPE BUG FIX
         function resetApp() {
             localStorage.removeItem('matchState');
-            
-            // Hard reset the variables so they don't get saved again on unload
             state.status = 'idle';
             state.view = 'home';
             state.isHost = false;
             state.myCatches = [];
-            
             location.reload();
         }
     </script>
