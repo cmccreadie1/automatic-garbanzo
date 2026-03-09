@@ -10,6 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
+        /* AGGRESSIVE PULL-TO-REFRESH KILLER (Scrolling Restored) */
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #0f172a; 
@@ -21,19 +22,12 @@
             position: fixed; 
             overflow: hidden; 
             overscroll-behavior: none;
-            touch-action: none; 
         }
 
         .scrollable-area {
             overflow-y: auto;
             touch-action: pan-y;
             overscroll-behavior-y: contain;
-        }
-
-        #landscape-warning { display: none; }
-        @media screen and (orientation: landscape) {
-            #app-container { display: none !important; }
-            #landscape-warning { display: flex !important; }
         }
 
         .text-amber { color: #f59e0b; }
@@ -93,19 +87,13 @@
 </head>
 <body>
 
-    <div id="landscape-warning" class="w-full h-full bg-slate-900 flex-col items-center justify-center p-8 text-center z-[100]">
-        <i class="fa-solid fa-mobile-screen-button text-amber text-6xl mb-6 rotate-90"></i>
-        <h1 class="text-3xl font-black mb-4 uppercase">Rotate Phone</h1>
-        <p class="text-slate-400 font-bold text-lg">The Match App is strictly designed for portrait mode to ensure quick, one-handed catch logging.</p>
-    </div>
-
     <div id="app-container" class="w-full h-full flex flex-col relative">
 
         <div id="view-home" class="flex-1 flex flex-col p-6 items-center justify-center space-y-6">
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.0</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.1</div>
             </div>
             
             <div class="w-full max-w-sm space-y-4 pt-4">
@@ -253,7 +241,7 @@
             <div id="loggingArea" class="scrollable-area flex-1 p-4 space-y-3 pb-24">
                 
                 <label class="block text-slate-400 font-bold text-sm uppercase">Species</label>
-                <select id="inputSpecies" class="w-full bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-xl font-bold appearance-none text-white focus:border-amber">
+                <select id="inputSpecies" onchange="document.getElementById('inputSize').focus()" class="w-full bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-xl font-bold appearance-none text-white focus:border-amber">
                     <option value="" disabled selected>-- Select Species --</option>
                     <optgroup label="Roundfish">
                         <option value="Cod">Cod</option>
@@ -301,7 +289,7 @@
 
                 <label class="block text-slate-400 font-bold text-sm uppercase pt-1" id="labelSize">Size</label>
                 <div class="flex space-x-2">
-                    <input type="number" id="inputSize" inputmode="decimal" class="flex-1 bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-3xl font-black text-center w-full text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
+                    <input type="number" id="inputSize" inputmode="decimal" onkeydown="if(event.key === 'Enter') { recordCatch(); this.blur(); }" class="flex-1 bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-3xl font-black text-center w-full text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
                     <button onclick="adjustSize(1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">+</button>
                     <button onclick="adjustSize(-1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">-</button>
                 </div>
@@ -497,7 +485,7 @@
                     
                     if (oldState.status === 'playing' || oldState.status === 'grace') {
                         state = oldState; 
-                        listenToMatchCloud(); // Re-attach to cloud
+                        listenToMatchCloud(); 
                         navTo('fishing');
                         renderCatchList();
                         startClock();
@@ -612,13 +600,13 @@
             // Check for Marshal Start Signal
             if (state.status === 'waiting' && globalMatchData.status === 'playing') {
                 state.endTime = globalMatchData.endTime;
-                state.format = globalMatchData.format; // Lock format from cloud
+                state.format = globalMatchData.format; 
                 beginFishing(false); 
             }
             // Check for Marshal Early End / Grace Signal
             if (state.status === 'playing' && globalMatchData.status === 'grace') {
                 state.graceEndTime = globalMatchData.graceEndTime;
-                state.endTime = globalMatchData.endTime; // Jump clock to 0
+                state.endTime = globalMatchData.endTime; 
                 state.status = 'grace';
                 saveState();
             }
@@ -713,7 +701,7 @@
 
         function exitWaitingRoom() {
             if (confirm("Leave the waiting room?")) {
-                if (state.isHost) remove(ref(db, 'matches/' + state.pin)); // Clean up cloud
+                if (state.isHost) remove(ref(db, 'matches/' + state.pin)); 
                 resetApp();
             }
         }
@@ -759,7 +747,7 @@
                 } else {
                     clearInterval(hypeInterval);
                     playHorn();
-                    beginFishing(true); // true = push to cloud
+                    beginFishing(true); 
                 }
             }, 1000);
         }
@@ -772,7 +760,6 @@
                 update(ref(db, 'matches/' + state.pin), { status: 'playing', endTime: state.endTime });
             }
 
-            // Sync empty score immediately so angler appears on board
             pushMyScoreToCloud();
             
             let label = document.getElementById('labelSize');
@@ -888,7 +875,7 @@
             
             saveState();
             renderCatchList();
-            pushMyScoreToCloud(); // INSTANT SYNC TO ALL PHONES
+            pushMyScoreToCloud(); 
         }
 
         function editCatch(id) {
@@ -921,7 +908,7 @@
 
             saveState();
             renderCatchList();
-            pushMyScoreToCloud(); // INSTANT SYNC TO ALL PHONES
+            pushMyScoreToCloud(); 
         }
 
         function renderCatchList() {
@@ -961,12 +948,10 @@
             if (!globalMatchData || !globalMatchData.anglers) return;
             const board = document.getElementById('leaderboardList');
             
-            // Extract all anglers from cloud into array
             let anglersArray = [];
             for (const [key, val] of Object.entries(globalMatchData.anglers)) {
                 anglersArray.push(val);
             }
-            // Sort by highest score
             anglersArray.sort((a, b) => b.score - a.score);
 
             board.innerHTML = anglersArray.map((angler, index) => {
@@ -984,7 +969,6 @@
                 `;
             }).join('');
 
-            // Calculate Global Biggest Fish Bounty
             if (state.format !== 'speciesHunt') {
                 let biggestSize = 0;
                 let biggestString = "Waiting for catch...";
@@ -1033,7 +1017,6 @@
             if (choice && parseInt(choice) > 0 && parseInt(choice) <= options.length) {
                 let newHostId = options[parseInt(choice) - 1].id;
                 update(ref(db, 'matches/' + state.pin), { hostId: newHostId });
-                // Cloud push will automatically update local UI via listener
             }
         }
 
