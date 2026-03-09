@@ -254,4 +254,540 @@
         </div>
 
         <div class="absolute bottom-20 right-4 z-20">
-            <button id="btnMarshalPanel" onclick="document.getElementById('marshalDrawer').classList.add('open')" class="hidden bg-slate-700 text-white w-14 h-14 rounded-full shadow-lg text-
+            <button id="btnMarshalPanel" onclick="document.getElementById('marshalDrawer').classList.add('open')" class="hidden bg-slate-700 text-white w-14 h-14 rounded-full shadow-lg text-xl flex items-center justify-center border border-slate-600 active:bg-slate-600">
+                <i class="fa-solid fa-sliders"></i>
+            </button>
+        </div>
+
+        <div class="absolute bottom-0 left-0 w-full bg-slate-800 border-t border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] z-20">
+            <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-5 text-amber font-black text-xl uppercase tracking-widest active:bg-slate-700">
+                <i class="fa-solid fa-list-ol mr-2"></i> View Leaderboard
+            </button>
+        </div>
+    </div>
+
+    <div id="leaderboardDrawer" class="drawer fixed inset-y-0 right-0 w-full md:w-96 bg-slate-900 border-l border-slate-700 z-50 flex flex-col shadow-2xl">
+        
+        <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="w-full bg-slate-700 hover:bg-slate-600 text-white font-black py-5 uppercase tracking-widest text-sm shadow-md flex justify-center items-center active:bg-slate-600">
+            <i class="fa-solid fa-arrow-left mr-3"></i> RETURN TO CATCH LOG
+        </button>
+
+        <div class="p-4 bg-slate-800 flex justify-center items-center border-b border-slate-700">
+            <h2 class="font-black text-xl"><i class="fa-solid fa-trophy text-amber mr-2"></i> MATCH LEADERBOARD</h2>
+        </div>
+        
+        <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600">
+            <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish</p>
+            <p class="font-black text-lg" id="bountyBanner">Waiting for catch...</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-4 space-y-3" id="leaderboardList">
+            </div>
+    </div>
+
+    <div id="marshalDrawer" class="drawer fixed inset-y-0 left-0 w-80 bg-slate-900 border-r border-slate-700 z-50 flex flex-col shadow-2xl">
+        <div class="p-4 bg-slate-800 flex justify-between items-center border-b border-slate-700">
+            <h2 class="font-black text-xl"><i class="fa-solid fa-user-shield text-blue-400 mr-2"></i> MARSHAL</h2>
+            <button onclick="document.getElementById('marshalDrawer').classList.remove('open')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="p-6 space-y-6">
+            <div>
+                <label class="block text-slate-400 font-bold text-sm uppercase mb-2">Adjust Clock</label>
+                <div class="flex space-x-2">
+                    <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">-15 Min</button>
+                    <button class="flex-1 bg-slate-700 p-3 rounded font-bold text-white active:bg-slate-600">+15 Min</button>
+                </div>
+            </div>
+            
+            <hr class="border-slate-700">
+            
+            <button onclick="endMatchEarly(true)" class="w-full bg-amber text-slate-900 font-black py-4 rounded-xl shadow-lg active:bg-yellow-600">
+                WRAP UP EARLY<br><span class="text-xs font-bold opacity-80">(Keep 10 Min Grace)</span>
+            </button>
+            
+            <button onclick="endMatchEarly(false)" class="w-full bg-red-600 text-white font-black py-4 rounded-xl shadow-[0_0_15px_rgba(220,38,38,0.5)] active:bg-red-700">
+                🚨 ABORT MATCH<br><span class="text-xs font-bold opacity-80">(Zero Grace Period)</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="view-results" class="hidden flex-1 flex flex-col bg-black text-white p-6 justify-center text-center space-y-6">
+        <h1 class="text-4xl font-black uppercase text-amber border-b-2 border-slate-700 pb-4">Match Finished</h1>
+        
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-6">
+            <p class="text-slate-400 font-bold uppercase tracking-widest text-sm mb-1">Your Final Score</p>
+            <p class="text-6xl font-black text-white" id="finalScore">0</p>
+        </div>
+        
+        <div class="bg-slate-900 border-2 border-slate-700 rounded-xl p-4 flex justify-between items-center">
+            <p class="text-slate-400 font-bold">Total Fish:</p>
+            <p class="text-2xl font-black" id="finalCount">0</p>
+        </div>
+
+        <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-xl shadow-lg mt-8 active:bg-green-700">
+            <i class="fa-brands fa-whatsapp mr-2"></i> Share Results
+        </button>
+        <button onclick="resetApp()" class="text-slate-500 font-bold mt-4 border-b border-slate-700 pb-1 active:text-white">Return to Home</button>
+    </div>
+
+
+    <script>
+        /* -------------------------------------------------------------------------- */
+        /* FIREBASE STUB (Add your credentials here)                                  */
+        /* -------------------------------------------------------------------------- */
+        // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+        // import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
+        // const firebaseConfig = { apiKey: "YOUR_KEY", projectId: "YOUR_PROJECT" };
+        // const app = initializeApp(firebaseConfig);
+        // const db = getDatabase(app);
+
+        /* -------------------------------------------------------------------------- */
+        /* APPLICATION STATE & GHOST BOOT (LocalStorage)                              */
+        /* -------------------------------------------------------------------------- */
+        let state = {
+            view: 'home',
+            name: '',
+            isHost: false,
+            pin: '',
+            format: 'length',
+            endTime: null,
+            graceEndTime: null,
+            myCatches: [],
+            mackerelCount: 0,
+            editingId: null,
+            status: 'idle' // idle, waiting, playing, grace, finished
+        };
+
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js');
+        }
+
+        // Ghost Boot: Load on start
+        window.onload = () => {
+            const saved = localStorage.getItem('matchState');
+            if (saved) {
+                try {
+                    state = JSON.parse(saved);
+                    document.getElementById('playerName').value = state.name || "";
+                    // If in middle of match, jump straight to fishing view
+                    if (state.status === 'playing' || state.status === 'grace') {
+                        navTo('fishing');
+                        renderCatchList();
+                        startClock();
+                        if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
+                    } else if (state.status === 'finished') {
+                        navTo('results');
+                    } else {
+                        // For safety, force reset to home if state is weirdly stuck
+                        state.status = 'idle';
+                        navTo('home');
+                    }
+                } catch(e) {
+                    console.error("Corrupt state, resetting");
+                    navTo('home');
+                }
+            } else {
+                navTo('home');
+            }
+        };
+
+        function saveState() {
+            localStorage.setItem('matchState', JSON.stringify(state));
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* FORCE UPDATE / RESET APP LOGIC                                             */
+        /* -------------------------------------------------------------------------- */
+        function forceUpdateApp() {
+            const spinner = document.getElementById('updateSpinner');
+            spinner.classList.add('fa-spin');
+            
+            // Clear out local storage to fix any stuck "Host" button issues
+            localStorage.removeItem('matchState');
+            
+            // Clear Service Worker Cache to pull fresh GitHub files
+            if ('caches' in window) {
+                caches.keys().then((names) => {
+                    names.forEach(name => { caches.delete(name); })
+                });
+            }
+            
+            // Hard reload after 1 second
+            setTimeout(() => {
+                window.location.reload(true);
+            }, 1000);
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* NAVIGATION & UI LOGIC                                                      */
+        /* -------------------------------------------------------------------------- */
+        function navTo(viewId) {
+            document.querySelectorAll('body > div[id^="view-"]').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewId}`).classList.remove('hidden');
+            state.view = viewId;
+            saveState();
+        }
+
+        /* ATM Pad Logic */
+        let atmPin = "";
+        function atmPress(num) {
+            if (atmPin.length < 4) {
+                atmPin += num;
+                updateAtmDisplay();
+                if (atmPin.length === 4) {
+                    document.getElementById('btn-connect').classList.remove('hidden');
+                }
+            }
+        }
+        function atmDelete() {
+            atmPin = atmPin.slice(0, -1);
+            updateAtmDisplay();
+            document.getElementById('btn-connect').classList.add('hidden');
+        }
+        function updateAtmDisplay() {
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`pin-${i}`).innerText = atmPin[i-1] || "";
+            }
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* MATCH SETUP (MARSHAL)                                                      */
+        /* -------------------------------------------------------------------------- */
+        function createMatch() {
+            state.name = document.getElementById('playerName').value || "Marshal";
+            state.isHost = true;
+            state.format = document.getElementById('hostFormat').value;
+            state.pin = Math.floor(1000 + Math.random() * 9000).toString(); // Generate random 4 digit
+            state.status = 'waiting';
+            
+            document.getElementById('displayPin').innerText = state.pin;
+            document.getElementById('hostControls').classList.remove('hidden');
+            document.getElementById('joinerWaitingText').classList.add('hidden');
+            
+            navTo('waiting');
+        }
+
+        function connectToMatch() {
+            state.name = document.getElementById('playerName').value || "Angler";
+            state.isHost = false;
+            state.pin = atmPin;
+            state.status = 'waiting';
+            
+            document.getElementById('displayPin').innerText = state.pin;
+            document.getElementById('hostControls').classList.add('hidden');
+            document.getElementById('joinerWaitingText').classList.remove('hidden');
+            
+            navTo('waiting');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* TIMING, AUDIO & HYPE START                                                 */
+        /* -------------------------------------------------------------------------- */
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        const audioCtx = new AudioContext();
+
+        function playSyntheticTone(freq, type, duration) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(1, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        function playHorn() { playSyntheticTone(200, 'sawtooth', 1.5); }
+        function playWarningBeep() { 
+            playSyntheticTone(600, 'square', 0.2); 
+            setTimeout(() => playSyntheticTone(600, 'square', 0.4), 300);
+        }
+
+        function triggerHypeStart() {
+            // Set end time from Marshal input
+            let durationHours = parseFloat(document.getElementById('hostDuration').value || 4);
+            let msDuration = durationHours * 60 * 60 * 1000;
+            state.endTime = Date.now() + msDuration;
+            
+            navTo('hype');
+            let count = 10;
+            document.getElementById('hypeCount').innerText = count;
+            playSyntheticTone(400, 'sine', 0.1);
+
+            let hypeInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    document.getElementById('hypeCount').innerText = count;
+                    playSyntheticTone(400, 'sine', 0.1);
+                } else {
+                    clearInterval(hypeInterval);
+                    playHorn();
+                    beginFishing();
+                }
+            }, 1000);
+        }
+
+        function beginFishing() {
+            state.status = 'playing';
+            if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
+            
+            // Configure UI based on format
+            let label = document.getElementById('labelSize');
+            if(state.format.includes('weight')) label.innerText = "Weight";
+            else label.innerText = "Size (cm)";
+
+            navTo('fishing');
+            startClock();
+        }
+
+        let clockInterval;
+        let warningPlayed = false;
+
+        function startClock() {
+            clearInterval(clockInterval);
+            clockInterval = setInterval(() => {
+                let now = Date.now();
+                let remaining = state.endTime - now;
+
+                if (state.status === 'playing') {
+                    if (remaining <= 20 * 60 * 1000 && !warningPlayed) {
+                        playWarningBeep();
+                        warningPlayed = true;
+                        document.getElementById('statusBanner').innerText = "LAST CAST: 20 MINS REMAINING";
+                        document.getElementById('statusBanner').classList.remove('hidden');
+                        document.getElementById('statusBanner').classList.add('bg-amber', 'text-slate-900');
+                    }
+
+                    if (remaining <= 0) {
+                        playHorn();
+                        state.status = 'grace';
+                        state.graceEndTime = Date.now() + (10 * 60 * 1000); // 10 mins
+                        document.getElementById('statusBanner').innerText = "MATCH OVER - 10 MIN GRACE TO REEL IN";
+                        document.getElementById('statusBanner').classList.remove('bg-amber', 'text-slate-900');
+                        document.getElementById('statusBanner').classList.add('bg-red-600', 'text-white');
+                        document.getElementById('statusBanner').classList.remove('hidden');
+                        saveState();
+                    } else {
+                        updateTimerDisplay(remaining);
+                    }
+                } 
+                else if (state.status === 'grace') {
+                    let graceRemaining = state.graceEndTime - now;
+                    if (graceRemaining <= 0) {
+                        lockdownMatch();
+                    } else {
+                        updateTimerDisplay(graceRemaining);
+                    }
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay(ms) {
+            let totalSeconds = Math.floor(ms / 1000);
+            let hours = Math.floor(totalSeconds / 3600);
+            let minutes = Math.floor((totalSeconds % 3600) / 60);
+            let seconds = totalSeconds % 60;
+            document.getElementById('mainTimer').innerText = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* CATCH LOGGING & THE MACKEREL RULE                                          */
+        /* -------------------------------------------------------------------------- */
+        function adjustSize(val) {
+            let input = document.getElementById('inputSize');
+            let current = parseFloat(input.value) || 0;
+            input.value = current + val;
+        }
+
+        function recordCatch() {
+            let species = document.getElementById('inputSpecies').value;
+            let size = parseFloat(document.getElementById('inputSize').value) || 0;
+            if(size === 0) return;
+
+            let points = size; 
+            
+            // The Mackerel Rule
+            if (species === 'Mackerel') {
+                state.mackerelCount++;
+                if (state.mackerelCount > 3) {
+                    points = 0; // 4th Mackerel onwards is 0 points
+                }
+            }
+
+            if (state.editingId) {
+                // Editing existing
+                let catchObj = state.myCatches.find(c => c.id === state.editingId);
+                if(catchObj) {
+                    catchObj.species = species;
+                    catchObj.size = size;
+                    catchObj.points = points;
+                }
+                state.editingId = null;
+                document.getElementById('btnRecord').innerText = "RECORD CATCH";
+                document.getElementById('btnRecord').classList.replace('bg-amber', 'bg-blue-600');
+            } else {
+                // New catch
+                state.myCatches.unshift({
+                    id: Date.now().toString(),
+                    species: species,
+                    size: size,
+                    points: points,
+                    time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                
+                // Keep Species Stickiness (Shoal Mode)
+                document.getElementById('inputSize').value = "";
+            }
+            
+            saveState();
+            renderCatchList();
+        }
+
+        function editCatch(id) {
+            let catchObj = state.myCatches.find(c => c.id === id);
+            if(catchObj) {
+                document.getElementById('inputSpecies').value = catchObj.species;
+                document.getElementById('inputSize').value = catchObj.size;
+                state.editingId = id;
+                document.getElementById('btnRecord').innerText = "UPDATE CATCH";
+                document.getElementById('btnRecord').classList.replace('bg-blue-600', 'bg-amber');
+            }
+        }
+
+        function deleteCatch(id) {
+            let catchObj = state.myCatches.find(c => c.id === id);
+            if (catchObj && catchObj.species === 'Mackerel') state.mackerelCount--;
+            state.myCatches = state.myCatches.filter(c => c.id !== id);
+            saveState();
+            renderCatchList();
+        }
+
+        function renderCatchList() {
+            const list = document.getElementById('localCatchList');
+            list.innerHTML = "";
+
+            state.myCatches.forEach(c => {
+                let div = document.createElement('div');
+                div.className = "bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center active:bg-slate-700 transition";
+                div.innerHTML = `
+                    <div class="flex-1" onclick="editCatch('${c.id}')">
+                        <span class="font-bold text-white">${c.species}</span> 
+                        <span class="text-slate-400 text-sm ml-2">${c.size}</span>
+                        ${c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(0 Pts)</span>' : ''}
+                    </div>
+                    <button onclick="deleteCatch('${c.id}')" class="text-slate-500 hover:text-red-500 px-4 py-2 text-lg active:text-red-400">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+
+            // Update biggest fish bounty
+            if(state.myCatches.length > 0) {
+                let biggest = state.myCatches.reduce((max, obj) => obj.size > max.size ? obj : max);
+                document.getElementById('bountyBanner').innerText = `${state.name || 'Angler'} - ${biggest.size} ${biggest.species}`;
+            } else {
+                document.getElementById('bountyBanner').innerText = "Waiting for catch...";
+            }
+
+            // Sync Leaderboard View
+            updateLeaderboard();
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* SOLO TESTING LEADERBOARD LOGIC                                             */
+        /* -------------------------------------------------------------------------- */
+        function updateLeaderboard() {
+            const board = document.getElementById('leaderboardList');
+            
+            // Calculate total points based on current catches
+            let totalPts = state.myCatches.reduce((sum, c) => sum + c.points, 0);
+
+            // Dynamically populate with real local data
+            board.innerHTML = `
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-700 border-l-4 border-l-amber flex justify-between items-center shadow-md mt-2">
+                    <div>
+                        <span class="font-bold text-amber">1st</span> 
+                        <span class="font-bold ml-2 text-white text-lg">${state.name || "Angler"}</span>
+                    </div>
+                    <div class="font-black text-2xl text-white">${totalPts} <span class="text-sm text-slate-400">pts</span></div>
+                </div>
+            `;
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* MARSHAL EMERGENCY CONTROLS                                                 */
+        /* -------------------------------------------------------------------------- */
+        function endMatchEarly(keepGrace) {
+            document.getElementById('marshalDrawer').classList.remove('open');
+            if (keepGrace) {
+                state.endTime = Date.now(); // Drop main timer to 0 immediately
+                saveState();
+            } else {
+                // Abort completely
+                playSyntheticTone(800, 'sawtooth', 3.0); // Continuous siren
+                lockdownMatch();
+            }
+        }
+
+        function lockdownMatch() {
+            clearInterval(clockInterval);
+            state.status = 'finished';
+            saveState();
+            
+            // Calculate final score
+            let finalScore = state.myCatches.reduce((sum, c) => sum + c.points, 0);
+            document.getElementById('finalScore').innerText = finalScore;
+            document.getElementById('finalCount').innerText = state.myCatches.length;
+            
+            navTo('results');
+        }
+
+        /* -------------------------------------------------------------------------- */
+        /* WAKE LOCK API & POST MATCH SHARE                                           */
+        /* -------------------------------------------------------------------------- */
+        let wakeLock = null;
+        async function toggleWakeLock() {
+            const btn = document.getElementById('wakeLockBtn');
+            if (wakeLock !== null) {
+                await wakeLock.release();
+                wakeLock = null;
+                btn.innerHTML = `<i class="fa-solid fa-moon"></i> Sleep`;
+                btn.classList.replace('text-amber', 'text-slate-400');
+                btn.classList.replace('border-amber', 'border-slate-600');
+            } else {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    btn.innerHTML = `<i class="fa-solid fa-sun"></i> Awake`;
+                    btn.classList.replace('text-slate-400', 'text-amber');
+                    btn.classList.replace('border-slate-600', 'border-amber');
+                } catch (err) {
+                    alert('Wake Lock not supported on this browser.');
+                }
+            }
+        }
+
+        function shareResults() {
+            let finalScore = document.getElementById('finalScore').innerText;
+            let text = `🎣 *Match Results - PIN ${state.pin}*\n\nAngler: ${state.name}\nFinal Score: ${finalScore}\nTotal Fish: ${state.myCatches.length}\n\n`;
+            state.myCatches.forEach(c => { text += `- ${c.species} (${c.size})\n`; });
+            
+            if (navigator.share) {
+                navigator.share({ title: 'Match Results', text: text });
+            } else {
+                window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+            }
+        }
+
+        function resetApp() {
+            localStorage.removeItem('matchState');
+            location.reload();
+        }
+    </script>
+</body>
+</html>
