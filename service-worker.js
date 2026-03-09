@@ -1,4 +1,4 @@
-const CACHE_NAME = 'match-edition-v2.5';
+const CACHE_NAME = 'match-edition-v2.6';
 const ASSETS = [
   '/competition-Scorer/',
   '/competition-Scorer/index.html',
