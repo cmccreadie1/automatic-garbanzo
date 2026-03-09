@@ -18,7 +18,7 @@
             -webkit-user-select: none;
             user-select: none;
             width: 100%;
-            height: 100dvh; /* Uses dynamic viewport height to account for mobile UI bars */
+            height: 100dvh; 
             position: fixed; 
             overflow: hidden; 
             overscroll-behavior: none;
@@ -34,7 +34,7 @@
             overflow-y: auto;
             touch-action: pan-y;
             overscroll-behavior-y: contain;
-            -webkit-overflow-scrolling: touch; /* Forces iOS to unlock smooth scrolling */
+            -webkit-overflow-scrolling: touch; 
         }
 
         .text-amber { color: #f59e0b; }
@@ -100,7 +100,7 @@
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.2</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V2.3</div>
             </div>
             
             <div class="w-full max-w-sm space-y-4 pt-4">
@@ -454,7 +454,6 @@
         let clockInterval;
         let warningPlayed = false;
 
-        // BIND FUNCTIONS TO WINDOW (Needed because type="module" limits scope)
         window.navTo = navTo;
         window.forceUpdateApp = forceUpdateApp;
         window.atmPress = atmPress;
@@ -604,28 +603,23 @@
         }
 
         function processCloudUpdate() {
-            // Check for Marshal Start Signal
             if (state.status === 'waiting' && globalMatchData.status === 'playing') {
                 state.endTime = globalMatchData.endTime;
                 state.format = globalMatchData.format; 
                 beginFishing(false); 
             }
-            // Check for Marshal Early End / Grace Signal
             if (state.status === 'playing' && globalMatchData.status === 'grace') {
                 state.graceEndTime = globalMatchData.graceEndTime;
                 state.endTime = globalMatchData.endTime; 
                 state.status = 'grace';
                 saveState();
             }
-            // Check for Marshal Abort / Final End
             if (state.status !== 'finished' && globalMatchData.status === 'finished') {
                 lockdownMatch(false);
             }
-            // Sync Time Adjustments
             if (state.status === 'playing' && state.endTime !== globalMatchData.endTime) {
                 state.endTime = globalMatchData.endTime;
             }
-            // Dynamic Host Transfer
             if (globalMatchData.hostId === uid && !state.isHost) {
                 state.isHost = true;
                 if(state.status === 'playing') document.getElementById('btnMarshalPanel').classList.remove('hidden');
@@ -657,7 +651,6 @@
             state.pin = Math.floor(1000 + Math.random() * 9000).toString(); 
             state.status = 'waiting';
             
-            // Build Cloud Room
             set(ref(db, 'matches/' + state.pin), {
                 hostId: uid,
                 format: state.format,
@@ -678,7 +671,6 @@
             state.pin = atmPin;
             state.status = 'waiting';
 
-            // Verify Cloud Room Exists
             get(ref(db, 'matches/' + state.pin)).then((snapshot) => {
                 if (snapshot.exists()) {
                     let data = snapshot.val();
@@ -688,7 +680,6 @@
                     document.getElementById('hostControls').classList.add('hidden');
                     document.getElementById('joinerWaitingText').classList.remove('hidden');
                     
-                    // Drop latecomers straight into active match
                     if(data.status === 'playing' || data.status === 'grace') {
                         state.endTime = data.endTime;
                         if(data.status === 'grace') state.graceEndTime = data.graceEndTime;
