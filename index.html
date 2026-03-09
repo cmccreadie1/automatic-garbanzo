@@ -16,6 +16,8 @@
             -webkit-user-select: none;
             user-select: none;
             overflow-x: hidden;
+            /* KILLS THE PULL-TO-REFRESH BUG: */
+            overscroll-behavior-y: none; 
         }
         .text-amber { color: #f59e0b; }
         .bg-amber { background-color: #f59e0b; }
@@ -27,6 +29,7 @@
         }
         input[type="number"] {
             -moz-appearance: textfield;
+            text-align: center;
         }
 
         .atm-btn {
@@ -56,7 +59,6 @@
             border-radius: 50%;
         }
         
-        /* Fixed Landscape Drawers */
         .drawer-right {
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
@@ -78,7 +80,7 @@
         <div class="text-center">
             <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
             <h1 class="text-3xl font-black tracking-tight mb-1">MATCH EDITION</h1>
-            <div class="text-slate-500 font-bold text-sm tracking-widest">v1.3</div>
+            <div class="text-slate-500 font-bold text-sm tracking-widest">v1.4</div>
         </div>
         
         <div class="w-full max-w-sm space-y-4 pt-4">
@@ -147,7 +149,19 @@
         
         <div class="space-y-4">
             <label class="block text-amber font-bold">Match Duration (Hours)</label>
-            <input type="number" id="hostDuration" value="4" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber text-center">
+            <select id="hostDuration" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none text-center">
+                <option value="1">1.0 Hour</option>
+                <option value="1.5">1.5 Hours</option>
+                <option value="2">2.0 Hours</option>
+                <option value="2.5">2.5 Hours</option>
+                <option value="3">3.0 Hours</option>
+                <option value="3.5">3.5 Hours</option>
+                <option value="4" selected>4.0 Hours</option>
+                <option value="4.5">4.5 Hours</option>
+                <option value="5">5.0 Hours</option>
+                <option value="5.5">5.5 Hours</option>
+                <option value="6">6.0 Hours</option>
+            </select>
             
             <label class="block text-amber font-bold pt-4">Scoring Format</label>
             <select id="hostFormat" class="w-full bg-slate-800 border-2 border-slate-600 p-4 rounded-xl text-xl font-bold focus:border-amber appearance-none">
@@ -155,6 +169,7 @@
                 <option value="length10">Length + 10 Pts</option>
                 <option value="weightLb">Weight (Lbs & Oz)</option>
                 <option value="weightKg">Weight (Kg)</option>
+                <option value="speciesHunt">Species Hunt (1 pt per species)</option>
             </select>
             
             <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-xl mt-8 shadow-lg">CREATE MATCH</button>
@@ -188,9 +203,9 @@
         <div id="hypeCount" class="hype-number flex items-center justify-center w-64 h-64">10</div>
     </div>
 
-    <div id="view-fishing" class="hidden flex-1 flex flex-col relative pb-16">
+    <div id="view-fishing" class="hidden flex-1 flex flex-col relative pb-28">
         
-        <div class="bg-slate-900 border-b border-slate-700 px-4 py-3 flex justify-between items-center z-10">
+        <div class="bg-slate-900 border-b border-slate-700 px-4 py-3 flex justify-between items-center z-10 shadow-md">
             <div class="flex items-center space-x-3">
                 <div class="w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
                 <div class="text-xl font-black tabular-nums tracking-widest" id="mainTimer">04:00:00</div>
@@ -200,14 +215,15 @@
             </button>
         </div>
         
-        <div id="statusBanner" class="hidden bg-red-600 text-white text-center font-bold py-2 uppercase tracking-wide text-sm z-10">
+        <div id="statusBanner" class="hidden bg-red-600 text-white text-center font-bold py-2 uppercase tracking-wide text-sm z-10 shadow-md">
             Match Over - 10 Min Grace Period
         </div>
 
-        <div id="loggingArea" class="flex-1 p-4 space-y-4 overflow-y-auto">
+        <div id="loggingArea" class="flex-1 p-4 space-y-3 overflow-y-auto">
             
             <label class="block text-slate-400 font-bold text-sm uppercase">Species</label>
-            <select id="inputSpecies" class="w-full bg-slate-800 border-2 border-slate-600 p-5 rounded-xl text-2xl font-bold appearance-none text-white">
+            <select id="inputSpecies" class="w-full bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-xl font-bold appearance-none text-white focus:border-amber">
+                <option value="" disabled selected>-- Select Species --</option>
                 <optgroup label="Roundfish">
                     <option value="Cod">Cod</option>
                     <option value="Whiting">Whiting</option>
@@ -252,45 +268,42 @@
                 </optgroup>
             </select>
 
-            <label class="block text-slate-400 font-bold text-sm uppercase pt-2" id="labelSize">Size</label>
+            <label class="block text-slate-400 font-bold text-sm uppercase pt-1" id="labelSize">Size</label>
             <div class="flex space-x-2">
-                <input type="number" id="inputSize" inputmode="decimal" class="flex-1 bg-slate-800 border-2 border-slate-600 p-5 rounded-xl text-4xl font-black text-center text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
+                <input type="number" id="inputSize" inputmode="decimal" class="flex-1 bg-slate-800 border-2 border-slate-600 p-3 rounded-xl text-3xl font-black text-center w-full text-white focus:border-blue-500 outline-none placeholder-slate-600" placeholder="0">
                 <button onclick="adjustSize(1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">+</button>
                 <button onclick="adjustSize(-1)" class="w-20 bg-slate-700 rounded-xl text-3xl font-black text-slate-300 active:bg-slate-600">-</button>
             </div>
 
-            <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-3xl py-8 rounded-xl shadow-lg mt-4">
+            <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-2xl py-5 rounded-xl shadow-lg mt-2">
                 RECORD CATCH
             </button>
 
-            <div class="pt-6">
+            <div class="pt-4">
                 <h3 class="text-slate-500 font-bold text-sm uppercase mb-2">My Log (Tap to Edit)</h3>
                 <div id="localCatchList" class="space-y-2">
                     </div>
             </div>
-
-            <div class="pt-8 pb-20">
-                <button onclick="leaveMatchEarly()" class="w-full border border-slate-700 text-slate-400 font-bold py-4 rounded-xl active:bg-slate-800 transition">
-                    <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> Leave Match Early
-                </button>
-            </div>
         </div>
 
-        <div class="absolute bottom-20 right-4 z-20">
+        <div class="absolute bottom-32 right-4 z-20">
             <button id="btnMarshalPanel" onclick="document.getElementById('marshalDrawer').classList.add('open')" class="hidden bg-slate-700 text-white w-14 h-14 rounded-full shadow-lg text-xl flex items-center justify-center border border-slate-600 active:bg-slate-600">
                 <i class="fa-solid fa-sliders"></i>
             </button>
         </div>
 
-        <div class="absolute bottom-0 left-0 w-full bg-slate-800 border-t border-slate-700 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.3)] z-20">
-            <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-5 text-amber font-black text-xl uppercase tracking-widest active:bg-slate-700">
+        <div class="absolute bottom-0 left-0 w-full bg-slate-800 border-t border-slate-700 shadow-[0_-4px_10px_rgba(0,0,0,0.5)] z-20 flex flex-col">
+            <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber font-black text-lg uppercase tracking-widest active:bg-slate-700 border-b border-slate-700">
                 <i class="fa-solid fa-list-ol mr-2"></i> View Leaderboard
+            </button>
+            <button onclick="leaveMatchEarly()" class="w-full py-3 text-slate-400 font-bold text-sm uppercase tracking-widest active:bg-slate-700 transition">
+                <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> Leave Match Early
             </button>
         </div>
     </div>
 
     <div id="view-history" class="hidden flex-1 flex flex-col p-6 space-y-6">
-        <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+        <div class="flex justify-between items-center border-b border-slate-700 pb-4 pt-2">
             <button onclick="navTo('home')" class="text-slate-400 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
             <h2 class="text-xl font-bold">Match History</h2>
             <div class="w-6"></div>
@@ -310,7 +323,7 @@
             <h2 class="font-black text-xl"><i class="fa-solid fa-trophy text-amber mr-2"></i> MATCH LEADERBOARD</h2>
         </div>
         
-        <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600">
+        <div class="bg-amber text-slate-900 p-3 text-center border-b-4 border-yellow-600" id="bountyContainer">
             <p class="text-xs font-bold uppercase tracking-wide">👑 Biggest Fish</p>
             <p class="font-black text-lg" id="bountyBanner">Waiting for catch...</p>
         </div>
@@ -378,7 +391,7 @@
 
     <script>
         /* -------------------------------------------------------------------------- */
-        /* FIREBASE STUB (Add your credentials here)                                  */
+        /* FIREBASE STUB                                                              */
         /* -------------------------------------------------------------------------- */
         // import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
         // import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-database.js";
@@ -398,7 +411,6 @@
             endTime: null,
             graceEndTime: null,
             myCatches: [],
-            mackerelCount: 0,
             editingId: null,
             status: 'idle' 
         };
@@ -410,13 +422,10 @@
         window.onload = () => {
             history.pushState(null, null, window.location.href);
 
-            // FORCE WIPE FOR V1.3: This guarantees you escape the infinite boot loop 
-            // caused by the old ghost boot logic, safely landing you on the home screen.
             const saved = localStorage.getItem('matchState');
             if (saved) {
                 try {
                     let oldState = JSON.parse(saved);
-                    // Keep the name, but wipe the stuck status to free you
                     state.name = oldState.name || "";
                     document.getElementById('playerName').value = state.name;
                     state.status = 'idle';
@@ -591,8 +600,17 @@
             if(state.isHost) document.getElementById('btnMarshalPanel').classList.remove('hidden');
             
             let label = document.getElementById('labelSize');
-            if(state.format.includes('weight')) label.innerText = "Weight";
-            else label.innerText = "Size (cm)";
+            if (state.format.includes('weight')) {
+                label.innerText = "Weight";
+                document.getElementById('bountyContainer').classList.remove('hidden');
+            } else if (state.format === 'speciesHunt') {
+                label.innerText = "Size (Optional)";
+                // Hide biggest fish bounty on species hunt
+                document.getElementById('bountyContainer').classList.add('hidden');
+            } else {
+                label.innerText = "Size (cm)";
+                document.getElementById('bountyContainer').classList.remove('hidden');
+            }
 
             navTo('fishing');
             startClock();
@@ -650,7 +668,7 @@
         }
 
         /* -------------------------------------------------------------------------- */
-        /* CATCH LOGGING & THE MACKEREL RULE                                          */
+        /* CATCH LOGGING, MACKEREL RULE, & SPECIES HUNT LOGIC                         */
         /* -------------------------------------------------------------------------- */
         function adjustSize(val) {
             let input = document.getElementById('inputSize');
@@ -660,14 +678,28 @@
 
         function recordCatch() {
             let species = document.getElementById('inputSpecies').value;
-            let size = parseFloat(document.getElementById('inputSize').value) || 0;
-            if(size === 0) return;
+            if (!species) {
+                alert("Please select a species!");
+                return;
+            }
 
+            let size = parseFloat(document.getElementById('inputSize').value) || 0;
             let points = size; 
             
-            if (species === 'Mackerel') {
-                state.mackerelCount++;
-                if (state.mackerelCount > 3) points = 0; 
+            // Dynamic Scoring Logic based on Format
+            if (state.format === 'speciesHunt') {
+                // Check if this species has already been caught by this angler (excluding the fish currently being edited)
+                let isDuplicate = state.myCatches.some(c => c.species === species && c.id !== state.editingId);
+                points = isDuplicate ? 0 : 1; 
+            } else {
+                // The standard Mackerel Rule for length/weight comps
+                if (species === 'Mackerel') {
+                    // Count previous mackerels safely from the array directly
+                    let macCount = state.myCatches.filter(c => c.species === 'Mackerel' && c.id !== state.editingId).length;
+                    if (macCount >= 3) {
+                        points = 0; 
+                    }
+                }
             }
 
             if (state.editingId) {
@@ -688,8 +720,11 @@
                     points: points,
                     time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 });
-                document.getElementById('inputSize').value = "";
             }
+
+            // Force the dropdown to reset back to "-- Select Species --"
+            document.getElementById('inputSpecies').value = "";
+            document.getElementById('inputSize').value = "";
             
             saveState();
             renderCatchList();
@@ -707,9 +742,21 @@
         }
 
         function deleteCatch(id) {
-            let catchObj = state.myCatches.find(c => c.id === id);
-            if (catchObj && catchObj.species === 'Mackerel') state.mackerelCount--;
             state.myCatches = state.myCatches.filter(c => c.id !== id);
+            
+            // If deleting a species in Species Hunt format, recalculate points for any remaining duplicates
+            if (state.format === 'speciesHunt') {
+                let seen = new Set();
+                state.myCatches.slice().reverse().forEach(c => {
+                    if (!seen.has(c.species)) {
+                        c.points = 1;
+                        seen.add(c.species);
+                    } else {
+                        c.points = 0;
+                    }
+                });
+            }
+
             saveState();
             renderCatchList();
         }
@@ -721,11 +768,19 @@
             state.myCatches.forEach(c => {
                 let div = document.createElement('div');
                 div.className = "bg-slate-800 p-3 rounded-lg border border-slate-700 flex justify-between items-center active:bg-slate-700 transition";
+                
+                let pointsLabel = "";
+                if (state.format === 'speciesHunt') {
+                    pointsLabel = c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(Duplicate - 0 Pts)</span>' : '<span class="text-green-400 text-xs ml-2 font-bold">(New Species - 1 Pt)</span>';
+                } else {
+                    pointsLabel = c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(0 Pts)</span>' : '';
+                }
+
                 div.innerHTML = `
                     <div class="flex-1" onclick="editCatch('${c.id}')">
                         <span class="font-bold text-white">${c.species}</span> 
-                        <span class="text-slate-400 text-sm ml-2">${c.size}</span>
-                        ${c.points === 0 ? '<span class="text-red-400 text-xs ml-2 font-bold">(0 Pts)</span>' : ''}
+                        <span class="text-slate-400 text-sm ml-2">${c.size > 0 ? c.size : ''}</span>
+                        ${pointsLabel}
                     </div>
                     <button onclick="deleteCatch('${c.id}')" class="text-slate-500 hover:text-red-500 px-4 py-2 text-lg active:text-red-400">
                         <i class="fa-solid fa-trash"></i>
@@ -734,11 +789,13 @@
                 list.appendChild(div);
             });
 
-            if(state.myCatches.length > 0) {
-                let biggest = state.myCatches.reduce((max, obj) => obj.size > max.size ? obj : max);
-                document.getElementById('bountyBanner').innerText = `${state.name || 'Angler'} - ${biggest.size} ${biggest.species}`;
-            } else {
-                document.getElementById('bountyBanner').innerText = "Waiting for catch...";
+            if (state.format !== 'speciesHunt') {
+                if(state.myCatches.length > 0) {
+                    let biggest = state.myCatches.reduce((max, obj) => obj.size > max.size ? obj : max);
+                    document.getElementById('bountyBanner').innerText = `${state.name || 'Angler'} - ${biggest.size} ${biggest.species}`;
+                } else {
+                    document.getElementById('bountyBanner').innerText = "Waiting for catch...";
+                }
             }
 
             updateLeaderboard();
