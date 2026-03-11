@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   STABILITY RELEASE - VERSION 4.0.3
-   FULL VOLUME Logic
+   OFFICIAL GOLD MASTER v2 
+   FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.0.3-stable';
+const CACHE_NAME = 'match-gold-v2-restored';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Immediate Activation */
+  /* Force the waiting service worker to become active */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Production Assets');
+      console.log('Cache Opened: Version Gold Master v2');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging Obsolete Cache', cacheName);
+            console.log('Clearing old cache logic');
             return caches.delete(cacheName);
           }
         })
@@ -38,19 +38,19 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Take control of all open tabs immediately */
+  /* Ensure the new SW takes immediate control */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Priority 1: Cached File */
+      /* Return from cache if found */
       if (response) {
         return response;
       }
       
-      /* Priority 2: Network Fetch */
+      /* Otherwise fetch from network */
       return fetch(event.request);
     })
   );
