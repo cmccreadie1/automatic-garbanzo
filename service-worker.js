@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   OFFICIAL SERVICE WORKER - VERSION 4.0.2
-   FULL VOLUME EXPANSION
+   STABILITY RELEASE - VERSION 4.0.3
+   FULL VOLUME Logic
 */
 
-const CACHE_NAME = 'match-edition-v4.0.2-ironclad';
+const CACHE_NAME = 'match-edition-v4.0.3-stable';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Skip waiting to ensure the update applies immediately */
+  /* Immediate Activation */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Service Worker: Caching Assets');
+      console.log('SW: Caching Production Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Deleting Old Cache');
+            console.log('SW: Purging Obsolete Cache', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -38,18 +38,19 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Ensure the new Service Worker takes control immediately */
+  /* Take control of all open tabs immediately */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* If asset is in cache, return it. Otherwise, fetch from network. */
+      /* Priority 1: Cached File */
       if (response) {
         return response;
       }
       
+      /* Priority 2: Network Fetch */
       return fetch(event.request);
     })
   );
