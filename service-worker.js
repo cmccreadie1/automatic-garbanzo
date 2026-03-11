@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VISUAL RESTORATION - VERSION 4.2.3
-   FULL VOLUME Logic
+   VERSION 4.2.4 - TERMINOLOGY UPDATE
+   FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.2.3-hype-restored';
+const CACHE_NAME = 'match-edition-v4.2.4-leaderboard';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate activation */
+  /* Immediate takeover of the new terminology */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Restoration Build 4.2.3');
+      console.log('SW: Caching Leaderboard Terminology Update');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Removing outdated logic');
+            console.log('SW: Purging old terminology cache');
             return caches.delete(cacheName);
           }
         })
