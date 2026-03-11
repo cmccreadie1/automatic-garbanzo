@@ -10,7 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        /* THE ANCHOR */
+        /* HARDWARE CONSTRAINTS */
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #020617; 
@@ -32,6 +32,12 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
+            transition: background-color 0.5s ease;
+        }
+
+        /* V3.9 GRACE PERIOD THEME SHIFT */
+        #app-container.grace-active {
+            background-color: #450a0a !important; /* Deep Maroon */
         }
 
         .scrollable-area {
@@ -50,7 +56,6 @@
             overflow: hidden;
         }
 
-        /* V3.8 THEME: AMBER ACCENTS FOR ALL UTILITIES */
         .match-card {
             background-color: #1e293b; 
             border: 1px solid #334155; 
@@ -60,7 +65,6 @@
 
         .text-amber { color: #f59e0b; }
         .bg-amber { background-color: #f59e0b; }
-        .border-amber { border-color: #f59e0b; }
         
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
@@ -72,7 +76,6 @@
             text-align: center;
         }
 
-        /* ATM STYLE */
         .atm-btn {
             background: #1e293b;
             border: 2px solid #334155;
@@ -86,10 +89,7 @@
             transition: background 0.1s;
             color: #f8fafc;
         }
-        .atm-btn:active { 
-            background: #3b82f6; 
-            color: #ffffff; 
-        }
+        .atm-btn:active { background: #3b82f6; color: #ffffff; }
         
         @keyframes pulse-ring {
             0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
@@ -110,7 +110,6 @@
         }
         #broadcastToast.show { transform: translateY(0); }
         
-        /* DRAWERS */
         .drawer-right {
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
@@ -132,7 +131,6 @@
             box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
         }
 
-        /* CUSTOM MODAL FOR ENDING MATCH */
         #customEndModal {
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
@@ -153,55 +151,60 @@
         <div class="match-card w-full max-w-sm p-8 space-y-6 border-2 border-amber">
             <div class="text-center">
                 <i class="fa-solid fa-hourglass-end text-amber text-4xl mb-3"></i>
-                <h3 class="text-xl font-black uppercase tracking-tight">Final Countdown</h3>
-                <p class="text-slate-400 text-xs mt-2 leading-relaxed">Select how much time remains for all anglers before the grace period begins.</p>
+                <h3 class="text-xl font-black uppercase tracking-tight">Strike Time</h3>
+                <p class="text-slate-400 text-xs mt-2 leading-relaxed">Adjust the final clock for all anglers.</p>
             </div>
             <div class="grid grid-cols-1 gap-3">
-                <button onclick="stewardSetNewEnd(5)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">5 MINUTES REMAINING</button>
-                <button onclick="stewardSetNewEnd(10)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">10 MINUTES REMAINING</button>
-                <button onclick="stewardSetNewEnd(15)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">15 MINUTES REMAINING</button>
-                <button onclick="stewardSetNewEnd(0)" class="bg-red-600 py-4 rounded-xl font-black text-white active:bg-red-700 transition uppercase tracking-widest text-xs">Final Whistle Now</button>
+                <button onclick="stewardSetNewEnd(5)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">5 MIN REMAINING</button>
+                <button onclick="stewardSetNewEnd(10)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">10 MIN REMAINING</button>
+                <button onclick="stewardSetNewEnd(0)" class="bg-red-600 py-4 rounded-xl font-black text-white active:bg-red-700 transition uppercase tracking-widest text-xs">FINAL WHISTLE NOW</button>
             </div>
-            <button onclick="document.getElementById('customEndModal').classList.add('hidden')" class="w-full text-slate-500 font-black uppercase text-[10px] tracking-[0.3em] pt-4">Cancel Command</button>
+            <button onclick="document.getElementById('customEndModal').classList.add('hidden')" class="w-full text-slate-500 font-black uppercase text-[10px] tracking-[0.3em] pt-4">Cancel</button>
         </div>
     </div>
 
     <div id="app-container">
 
-        <div id="view-home" class="view-frame items-center justify-center p-6 space-y-6 bg-[#020617]">
+        <div id="view-home" class="view-frame items-center justify-center p-6 space-y-6">
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1 uppercase text-white">Match Edition</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V3.8</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V3.9</div>
             </div>
             
-            <div class="w-full max-w-sm space-y-4 pt-2">
-                <div class="match-card p-6">
-                    <label class="block text-slate-400 font-black text-[10px] uppercase tracking-widest mb-3 ml-1 text-center">Angler Profile</label>
-                    <input type="text" id="playerName" placeholder="Your Name" class="w-full bg-slate-900 border-2 border-slate-700 text-white font-bold text-xl rounded-xl p-4 text-center focus:border-blue-500 focus:outline-none shadow-inner">
+            <div class="w-full max-w-sm space-y-3 pt-2">
+                <div class="match-card p-5 space-y-4">
+                    <div>
+                        <label class="block text-slate-400 font-black text-[9px] uppercase tracking-widest mb-2 ml-1">Angler Profile</label>
+                        <input type="text" id="playerName" placeholder="Your Name" class="w-full bg-slate-900 border border-slate-700 text-white font-bold text-lg rounded-xl p-3 text-center focus:border-blue-500 outline-none shadow-inner">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 font-black text-[9px] uppercase tracking-widest mb-2 ml-1">Match Venue (Private)</label>
+                        <input type="text" id="venueName" placeholder="e.g. Largs Pier" class="w-full bg-slate-900 border border-slate-700 text-white font-bold text-lg rounded-xl p-3 text-center focus:border-amber outline-none shadow-inner">
+                    </div>
                 </div>
                 
                 <button onclick="navTo('join')" class="w-full bg-green-600 hover:bg-green-500 text-white font-black text-2xl py-6 rounded-2xl shadow-lg uppercase tracking-wide active:scale-95 transition-transform">
                     Join Match
                 </button>
                 
-                <div class="flex space-x-4 pt-1">
-                    <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
+                <div class="flex space-x-4">
+                    <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700 transition">
                         <i class="fa-solid fa-crown mr-2 text-amber"></i> Steward
                     </button>
-                    <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
+                    <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700 transition">
                         <i class="fa-solid fa-book mr-2 text-blue-400"></i> History
                     </button>
                 </div>
 
-                <button id="btnUserGuide" onclick="document.getElementById('guideDrawer').classList.add('open')" class="w-full bg-slate-800 border-2 border-slate-700 text-amber font-black py-5 rounded-2xl shadow-xl flex items-center justify-center space-x-3 active:bg-slate-700 transition">
+                <button onclick="document.getElementById('guideDrawer').classList.add('open')" class="w-full bg-slate-800 border border-slate-700 text-amber font-black py-4 rounded-xl shadow-xl flex items-center justify-center space-x-3 active:bg-slate-700 transition">
                     <i class="fa-solid fa-circle-info"></i>
                     <span class="tracking-widest uppercase text-xs">User Guide</span>
                 </button>
 
-                <button onclick="forceUpdateApp()" class="w-full flex items-center justify-center space-x-2 bg-transparent text-slate-700 border border-slate-800/50 font-bold py-4 rounded-xl mt-6 active:text-amber transition">
+                <button onclick="forceUpdateApp()" class="w-full flex items-center justify-center space-x-2 bg-transparent text-slate-700 border border-slate-800/50 font-bold py-3 rounded-xl mt-4 active:text-amber transition">
                     <i class="fa-solid fa-rotate" id="updateSpinner"></i>
-                    <span class="text-[10px] uppercase tracking-widest font-black">System Reset</span>
+                    <span class="text-[9px] uppercase tracking-widest font-black">System Reset</span>
                 </button>
             </div>
         </div>
@@ -209,12 +212,12 @@
         <div id="view-join" class="hidden view-frame p-4 bg-[#020617]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4 pt-2">
                 <button onclick="navTo('home')" class="text-slate-500 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="text-xl font-black uppercase tracking-tight text-white">Join Room</h2>
+                <h2 class="text-xl font-black uppercase tracking-tight text-white">Connect</h2>
                 <div class="w-6"></div>
             </div>
 
             <div class="text-center pt-8 pb-4">
-                <h2 class="text-amber font-bold text-[10px] uppercase tracking-[0.3em] mb-2">Match PIN Required</h2>
+                <h2 class="text-amber font-bold text-[10px] uppercase tracking-[0.3em] mb-2">Match PIN</h2>
                 <div class="flex justify-center space-x-2">
                     <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded-xl flex items-center justify-center text-4xl font-black text-white shadow-2xl" id="pin-1"></div>
                     <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded-xl flex items-center justify-center text-4xl font-black text-white shadow-2xl" id="pin-2"></div>
@@ -237,45 +240,44 @@
                 <button class="atm-btn" onclick="atmPress(0)">0</button>
                 <button class="atm-btn text-amber text-xl" onclick="atmDelete()"><i class="fa-solid fa-delete-left"></i></button>
             </div>
-            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl mb-10 shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">Authenticate</button>
+            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl mb-10 shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">Verify PIN</button>
         </div>
 
-        <div id="view-host" class="hidden view-frame p-6 space-y-6">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+        <div id="view-host" class="hidden view-frame p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <button onclick="navTo('home')" class="text-slate-500 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="text-xl font-black uppercase tracking-tight text-white">Steward Setup</h2>
+                <h2 class="text-xl font-black uppercase tracking-tight text-white">Match Setup</h2>
                 <div class="w-6"></div>
             </div>
             
-            <div class="match-card p-8 space-y-6">
+            <div class="match-card p-6 space-y-4">
                 <div>
-                    <label class="block text-amber font-bold text-[10px] uppercase tracking-[0.2em] mb-2">Duration (Hours)</label>
-                    <select id="hostDuration" class="w-full bg-slate-900 border-2 border-slate-700 p-4 rounded-xl text-xl font-bold appearance-none text-center text-white shadow-inner">
+                    <label class="block text-amber font-bold text-[9px] uppercase tracking-[0.2em] mb-1.5">Match Hours</label>
+                    <select id="hostDuration" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg text-lg font-bold appearance-none text-center text-white shadow-inner">
                         <option value="1">1.0 Hour</option>
                         <option value="2">2.0 Hours</option>
                         <option value="3">3.0 Hours</option>
                         <option value="4" selected>4.0 Hours</option>
                         <option value="5">5.0 Hours</option>
-                        <option value="6">6.0 Hours</option>
                     </select>
                 </div>
                 
                 <div>
-                    <label class="block text-amber font-bold text-[10px] uppercase tracking-[0.2em] mb-2">Scoring Rules</label>
-                    <select id="hostFormat" class="w-full bg-slate-900 border-2 border-slate-700 p-4 rounded-xl text-xl font-bold appearance-none text-white shadow-inner">
-                        <option value="length">Length Only (cm)</option>
+                    <label class="block text-amber font-bold text-[9px] uppercase tracking-[0.2em] mb-1.5">Scoring Format</label>
+                    <select id="hostFormat" class="w-full bg-slate-900 border border-slate-700 p-3 rounded-lg text-lg font-bold appearance-none text-white shadow-inner">
+                        <option value="length">Length (cm)</option>
                         <option value="length10">Length + 10 Pts</option>
                         <option value="weightLb">Weight (Lbs & Oz)</option>
                         <option value="weightKg">Weight (Kg)</option>
-                        <option value="speciesHunt">Species Hunt (Dynamic)</option>
+                        <option value="speciesHunt">Species Hunt</option>
                     </select>
                 </div>
                 
-                <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-xl mt-4 shadow-2xl uppercase tracking-tighter active:scale-95 transition-transform">Initialize Room</button>
+                <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-xl py-5 rounded-xl mt-2 shadow-2xl uppercase active:scale-95 transition-transform">Initialize Room</button>
             </div>
         </div>
 
-        <div id="view-waiting" class="hidden view-frame p-6 space-y-4 bg-[#020617]">
+        <div id="view-waiting" class="hidden view-frame p-6 space-y-4">
             <div class="flex justify-between items-center w-full">
                 <button onclick="exitWaitingRoom()" class="text-slate-500 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
                 <div class="text-amber font-black tracking-[0.2em] bg-slate-800 px-6 py-2 rounded-xl border border-slate-700 shadow-xl" id="displayPin">0000</div>
@@ -283,7 +285,7 @@
 
             <div class="flex-1 flex flex-col items-center space-y-6">
                 <div class="text-center pt-4">
-                    <h2 class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Steward Lobby</h2>
+                    <h2 class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Steward Command Desk</h2>
                     <h3 class="text-2xl font-black text-white mt-1 uppercase">Ready Anglers</h3>
                 </div>
 
@@ -291,13 +293,13 @@
                     </div>
                 
                 <div id="hostControls" class="hidden w-full max-w-sm pb-6">
-                    <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-3xl animate-pulse shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">
+                    <button onclick="triggerHypeStart()" class="w-full bg-red-600 hover:bg-red-500 text-white font-black text-2xl py-6 rounded-3xl animate-pulse shadow-2xl uppercase active:scale-95 transition-transform">
                         🚨 START MATCH
                     </button>
                 </div>
                 <div id="joinerWaitingText" class="w-full max-w-sm pb-6 text-center">
-                    <p class="text-lg font-bold text-slate-400 italic">Cloud Synchronized... Waiting.</p>
-                    <i class="fa-solid fa-spinner fa-spin text-2xl text-amber mt-4 opacity-50"></i>
+                    <p class="text-lg font-bold text-slate-400 italic">Connected... Waiting.</p>
+                    <i class="fa-solid fa-spinner fa-spin text-2xl text-amber mt-4"></i>
                 </div>
             </div>
         </div>
@@ -306,27 +308,27 @@
             <div id="hypeCount" class="hype-number flex items-center justify-center w-64 h-64">10</div>
         </div>
 
-        <div id="view-fishing" class="hidden view-frame relative bg-[#020617]">
+        <div id="view-fishing" class="hidden view-frame relative">
             
             <div class="flex-none bg-slate-900 border-b border-slate-800 px-4 py-2.5 flex justify-between items-center z-20 shadow-xl">
                 
                 <div class="flex flex-col items-start">
                     <div class="flex items-center space-x-2">
                         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
-                        <div class="text-lg font-black tabular-nums tracking-tighter text-white leading-none" id="mainTimer">00:00:00</div>
+                        <div class="text-lg font-black tabular-nums tracking-tighter text-white" id="mainTimer">00:00:00</div>
                     </div>
-                    <span id="graceLabel" class="hidden text-[8px] font-black text-red-500 uppercase tracking-widest mt-1 ml-4 animate-pulse">Grace Period</span>
+                    <span id="graceLabel" class="hidden text-[10px] font-black text-red-500 uppercase tracking-[0.2em] mt-1 ml-4 animate-pulse">GRACE PERIOD</span>
                 </div>
 
                 <div class="flex items-center space-x-3">
-                    <i id="cloudSignal" class="fa-solid fa-cloud text-slate-700 text-lg transition-colors duration-500"></i>
+                    <i id="cloudSignal" class="fa-solid fa-cloud text-slate-700 text-lg transition-colors"></i>
                     <div class="bg-slate-800 border border-slate-700 rounded-xl px-5 py-1.5 flex flex-col items-center justify-center min-w-[95px] shadow-inner">
-                        <span class="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Session Total</span>
+                        <span class="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Total</span>
                         <span class="text-xl font-black text-white leading-none" id="liveTallyBox">0</span>
                     </div>
                 </div>
 
-                <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-slate-500 border border-slate-800 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase active:bg-slate-800">
+                <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-slate-500 border border-slate-800 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase">
                     <i class="fa-solid fa-moon"></i>
                 </button>
             </div>
@@ -346,8 +348,8 @@
                 <div class="match-card p-4 space-y-4">
                     <div>
                         <label class="block text-slate-500 font-black text-[9px] uppercase tracking-[0.3em] mb-1.5 ml-1 text-center">Identify Species</label>
-                        <select id="inputSpecies" onchange="focusMeasurement()" class="w-full bg-slate-900 border-2 border-slate-800 p-3 rounded-xl text-lg font-black appearance-none text-white focus:border-blue-500 transition shadow-inner">
-                            <option value="" disabled selected>-- Select --</option>
+                        <select id="inputSpecies" onchange="focusMeasurement()" class="w-full bg-slate-900 border-2 border-slate-800 p-3 rounded-xl text-lg font-black appearance-none text-white focus:border-blue-500 outline-none shadow-inner">
+                            <option value="" disabled selected>-- Select Species --</option>
                             <optgroup label="Roundfish">
                                 <option value="Cod">Cod</option>
                                 <option value="Whiting">Whiting</option>
@@ -368,23 +370,21 @@
                                 <option value="Lemon Sole">Lemon Sole</option>
                             </optgroup>
                             <optgroup label="Sharks & Rays">
-                                <option value="Dogfish">Lesser Spotted Dogfish</option>
+                                <option value="Dogfish">Dogfish</option>
                                 <option value="Bull Huss">Bull Huss</option>
                                 <option value="Smoothhound">Smoothhound</option>
                                 <option value="Tope">Tope</option>
                                 <option value="Thornback Ray">Thornback Ray</option>
                                 <option value="Spotted Ray">Spotted Ray</option>
-                                <option value="Blonde Ray">Blonde Ray</option>
                             </optgroup>
-                            <optgroup label="Others">
+                            <optgroup label="Mini-Species / Pelagics">
                                 <option value="Ballan Wrasse">Ballan Wrasse</option>
                                 <option value="Corkwing Wrasse">Corkwing Wrasse</option>
                                 <option value="Conger Eel">Conger Eel</option>
                                 <option value="Rockling">Rockling</option>
-                                <option value="Gurnard">Gurnard</option>
+                                <option value="Grey Gurnard">Grey Gurnard</option>
                                 <option value="Scad">Scad</option>
                                 <option value="Mackerel">Mackerel</option>
-                                <option value="Herring">Herring</option>
                                 <option value="Garfish">Garfish</option>
                             </optgroup>
                         </select>
@@ -409,7 +409,7 @@
                         </div>
                     </div>
 
-                    <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-xl py-4 rounded-xl shadow-xl transition uppercase tracking-widest active:scale-95">
+                    <button id="btnRecord" onclick="recordCatch()" class="w-full bg-blue-600 active:bg-blue-500 text-white font-black text-xl py-4 rounded-xl shadow-xl transition uppercase active:scale-95">
                         Submit Fish
                     </button>
                 </div>
@@ -423,13 +423,13 @@
                 <div id="btnStewardPanelContainer" class="hidden pt-4">
                     <button onclick="document.getElementById('stewardDrawer').classList.add('open')" class="w-full bg-slate-800 border border-slate-700 text-white font-black py-5 rounded-2xl shadow-xl active:bg-slate-700 transition flex items-center justify-center space-x-3">
                         <i class="fa-solid fa-user-shield text-blue-400"></i>
-                        <span class="tracking-widest uppercase text-[11px]">Match Master Settings</span>
+                        <span class="tracking-widest uppercase text-[11px]">Match Master Console</span>
                     </button>
                 </div>
 
                 <div class="pt-8 pb-20">
                     <button onclick="leaveMatchEarly()" class="w-full border-2 border-slate-800 text-slate-600 font-black py-5 rounded-3xl active:bg-slate-950 transition shadow-sm text-[10px] uppercase tracking-[0.5em]">
-                        <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> Terminate Session
+                        <i class="fa-solid fa-person-walking-arrow-right mr-2"></i> Terminate Early
                     </button>
                 </div>
             </div>
@@ -437,8 +437,8 @@
 
         <div id="view-results" class="hidden view-frame bg-[#020617] text-white p-6 justify-center text-center space-y-6">
             <h1 class="text-5xl font-black uppercase text-amber border-b-4 border-slate-900 pb-6 tracking-tighter">Final Standing</h1>
-            <div class="match-card p-10 shadow-[0_0_50px_rgba(59,130,246,0.15)]">
-                <p class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-center">Total Points Score</p>
+            <div class="match-card p-8 shadow-[0_0_50px_rgba(59,130,246,0.15)]">
+                <p class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-center">Final Score</p>
                 <p class="text-8xl font-black text-white" id="finalScore">0</p>
             </div>
             
@@ -448,7 +448,7 @@
                     <span class="text-3xl font-black text-white" id="finalCount">0</span>
                 </div>
                 <div class="match-card p-4 flex flex-col items-center">
-                    <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">Unique Species</span>
+                    <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">Species</span>
                     <span class="text-3xl font-black text-blue-400" id="finalSpecies">0</span>
                 </div>
             </div>
@@ -472,7 +472,7 @@
 
                 <div id="archiveContainer" class="hidden px-1">
                     <button onclick="toggleArchive()" class="w-full flex justify-between items-center bg-slate-950/50 p-5 rounded-2xl border-2 border-slate-800 active:bg-slate-900 transition shadow-lg">
-                        <span class="font-black text-xs uppercase tracking-[0.3em] text-slate-500"><i class="fa-solid fa-box-archive mr-2 text-amber opacity-40"></i> Older Storage</span>
+                        <span class="font-black text-xs uppercase tracking-[0.3em] text-slate-500"><i class="fa-solid fa-box-archive mr-2 text-amber opacity-40"></i> Archived Storage</span>
                         <i class="fa-solid fa-chevron-down text-slate-600 transition-transform duration-300" id="archiveChevron"></i>
                     </button>
                     <div id="historyArchiveList" class="hidden pt-6 space-y-4">
@@ -488,22 +488,20 @@
             <div class="scrollable-area p-8 space-y-10 text-slate-300">
                 <section>
                     <h4 class="text-amber font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Overview</h4>
-                    <p class="text-sm leading-relaxed">Sea Diary: Match Edition is a synchronized, cloud-based platform for angling competitions. A central Steward controls the match room while competitors log live data from the beach.</p>
+                    <p class="text-sm leading-relaxed">Sea Diary: Match Edition is a cloud-powered scoring deck. A central Steward controls the match room while competitors log live data from the beach.</p>
                 </section>
                 <section>
                     <h4 class="text-blue-400 font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Competitor Role</h4>
                     <ul class="space-y-4 text-sm">
-                        <li><b class="text-white">Joining:</b> Enter your name and the 4-digit PIN provided by your Steward.</li>
-                        <li><b class="text-white">Logging:</b> Select species, enter measurements, and hit "Submit Fish".</li>
-                        <li><b class="text-white">Live Tally:</b> Your session total is always visible in the top navigation bar.</li>
+                        <li><b class="text-white">Joining:</b> Enter your name, optional venue, and the match PIN.</li>
+                        <li><b class="text-white">Signal:</b> Green cloud icon = Synced. Red = Offline (Queued).</li>
+                        <li><b class="text-white">Alerts:</b> You will receive a tone and popup when 20 mins remain.</li>
                     </ul>
                 </section>
                 <section>
                     <h4 class="text-red-500 font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Steward Role</h4>
                     <ul class="space-y-4 text-sm">
-                        <li><b class="text-white">Setup:</b> Configure the duration and scoring rules before opening the room.</li>
-                        <li><b class="text-white">Start Whistle:</b> Tap "Start Match" to trigger a 10-second sync countdown for all.</li>
-                        <li><b class="text-white">Whistle:</b> Use "Final Whistle" to trigger the 5-minute grace period.</li>
+                        <li><b class="text-white">Timing:</b> Adjust time or trigger the 5-min grace period at any time.</li>
                     </ul>
                 </section>
             </div>
@@ -514,19 +512,19 @@
                 <i class="fa-solid fa-xmark mr-4"></i> Close Record
             </button>
             <div class="flex-none flex bg-slate-900 p-3 space-x-3 border-b border-slate-800 shadow-lg">
-                <button id="tab-standings" onclick="switchHistoryTab('standings')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Tournament Standings</button>
-                <button id="tab-record" onclick="switchHistoryTab('record')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Individual Catch Record</button>
+                <button id="tab-standings" onclick="switchHistoryTab('standings')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Rankings</button>
+                <button id="tab-record" onclick="switchHistoryTab('record')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Catch Journal</button>
             </div>
             <div id="historyContent" class="scrollable-area p-8">
                 </div>
         </div>
 
         <div id="leaderboardDrawer" class="drawer-right fixed inset-0 w-full bg-[#020617] z-[101] flex flex-col shadow-2xl">
-            <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="flex-none w-full bg-blue-600 hover:bg-blue-600 text-white font-black py-8 uppercase tracking-[0.3em] shadow-2xl flex justify-center items-center active:bg-blue-800">
+            <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="flex-none w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-8 uppercase tracking-[0.3em] shadow-2xl flex justify-center items-center active:bg-blue-800">
                 <i class="fa-solid fa-arrow-left mr-4 animate-pulse"></i> RETURN TO FISHING
             </button>
             <div class="flex-none p-5 bg-slate-900 flex justify-center items-center border-b border-slate-800 shadow-md">
-                <h2 class="font-black text-xl tracking-widest text-slate-100 uppercase" id="leaderboardTitle">Live Global Standing</h2>
+                <h2 class="font-black text-xl tracking-widest text-slate-100 uppercase" id="leaderboardTitle">Live Global Ranking</h2>
             </div>
             <div class="flex-none bg-amber text-slate-900 p-5 text-center border-b-8 border-yellow-600 shadow-2xl" id="bountyContainer">
                 <p class="text-[11px] font-black uppercase tracking-[0.3em] mb-1 text-slate-900">👑 Match Biggest Fish</p>
@@ -545,7 +543,7 @@
             </div>
             <div class="scrollable-area p-10 space-y-10">
                 <div>
-                    <label class="block text-slate-600 font-black text-xs uppercase mb-5 tracking-[0.4em] text-center">Match Timing Control</label>
+                    <label class="block text-slate-600 font-black text-xs uppercase mb-5 tracking-[0.4em] text-center">Adjust Time Left</label>
                     <div class="flex space-x-4">
                         <button onclick="adjustClock(-15)" class="flex-1 bg-slate-900 border-2 border-slate-800 p-6 rounded-3xl font-black text-white active:bg-slate-800 transition shadow-xl">-15 MIN</button>
                         <button onclick="adjustClock(15)" class="flex-1 bg-slate-900 border-2 border-slate-800 p-6 rounded-3xl font-black text-white active:bg-slate-800 transition shadow-xl">+15 MIN</button>
@@ -553,14 +551,14 @@
                 </div>
                 <hr class="border-slate-800">
                 <button onclick="transferSteward()" class="w-full bg-slate-900 border-2 border-slate-800 text-slate-400 font-black py-6 rounded-3xl shadow-xl active:bg-slate-800 transition flex justify-center items-center uppercase tracking-widest text-sm">
-                    <i class="fa-solid fa-right-left mr-4 text-amber opacity-40"></i> Relinquish Control
+                    <i class="fa-solid fa-right-left mr-4 text-amber opacity-40"></i> Relinquish Status
                 </button>
                 <hr class="border-slate-800 pt-5">
                 <button onclick="endMatchEarly(true)" class="w-full bg-amber text-slate-900 font-black py-7 rounded-3xl shadow-2xl active:bg-yellow-600 uppercase tracking-widest text-lg leading-tight">
-                    Final Whistle Setup<br><span class="text-[11px] font-black opacity-60">(Set Finish Time)</span>
+                    Final Whistle Setup<br><span class="text-[11px] font-black opacity-60">(Set End Time)</span>
                 </button>
                 <button onclick="endMatchEarly(false)" class="w-full bg-red-600 text-white font-black py-7 rounded-3xl shadow-[0_0_40px_rgba(220,38,38,0.3)] active:bg-red-700 uppercase tracking-widest text-lg leading-tight mt-6">
-                    🚨 Emergency Abort<br><span class="text-[11px] font-black opacity-60">(Instant Closure)</span>
+                    🚨 Emergency Abort<br><span class="text-[11px] font-black opacity-60">(Instant Results)</span>
                 </button>
             </div>
         </div>
@@ -590,6 +588,7 @@
         let state = {
             view: 'home',
             name: '',
+            venue: '',
             isHost: false,
             pin: '',
             format: 'length',
@@ -605,11 +604,10 @@
         let clockInterval = null;
         let hypeInterval = null;
         let countdownActive = false;
-        let warningPlayed = false;
         let alert20Played = false;
         let isArchiveOpen = false;
 
-        // BINDINGS
+        // MULTI-LINE MASTER BINDINGS
         window.navTo = navTo;
         window.forceUpdateApp = forceUpdateApp;
         window.atmPress = atmPress;
@@ -648,7 +646,9 @@
                 try {
                     let oldState = JSON.parse(saved);
                     state.name = oldState.name || "";
+                    state.venue = oldState.venue || "";
                     document.getElementById('playerName').value = state.name;
+                    document.getElementById('venueName').value = state.venue;
                     if (['playing', 'grace', 'hype', 'waiting'].includes(oldState.status)) {
                         state = oldState; 
                         listenToCloud(); 
@@ -657,6 +657,10 @@
                             renderCatchList();
                             startClock();
                             updateLiveTally();
+                            if(state.status === 'grace') {
+                                document.getElementById('app-container').classList.add('grace-active');
+                                document.getElementById('mainTimer').classList.add('text-red-500');
+                            }
                         }
                         if(state.isHost) {
                             document.getElementById('btnStewardPanelContainer').classList.remove('hidden');
@@ -673,7 +677,6 @@
                 document.getElementById('stewardDrawer').classList.contains('open') ||
                 document.getElementById('guideDrawer').classList.contains('open') ||
                 !document.getElementById('historyDetailDrawer').classList.contains('hidden')) {
-                
                 document.getElementById('leaderboardDrawer').classList.remove('open');
                 document.getElementById('stewardDrawer').classList.remove('open');
                 document.getElementById('guideDrawer').classList.remove('open');
@@ -681,9 +684,9 @@
                 history.pushState(null, null, window.location.href); 
                 return;
             }
-            if (state.view === 'fishing' || state.status === 'playing') {
-                if (confirm("Tournament is active in the cloud. Exit Deck?")) {
-                    window.history.back(); 
+            if (state.view === 'fishing' || state.status === 'playing' || state.status === 'grace') {
+                if (confirm("Tournament is active. Terminal session? Standings preserved in cloud.")) {
+                    leaveMatchEarly();
                 } else {
                     history.pushState(null, null, window.location.href); 
                 }
@@ -712,9 +715,7 @@
             document.querySelectorAll('.view-frame').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
             state.view = viewId;
-            if (viewId === 'history') {
-                renderHistory();
-            }
+            if (viewId === 'history') { renderHistory(); }
             saveState();
         }
 
@@ -723,9 +724,7 @@
             if (atmPin.length < 4) {
                 atmPin += num;
                 updateAtm();
-                if (atmPin.length === 4) {
-                    document.getElementById('btn-connect').classList.remove('hidden');
-                }
+                if (atmPin.length === 4) { document.getElementById('btn-connect').classList.remove('hidden'); }
             }
         }
         function atmDelete() {
@@ -734,9 +733,7 @@
             document.getElementById('btn-connect').classList.add('hidden');
         }
         function updateAtm() {
-            for (let i = 1; i <= 4; i++) {
-                document.getElementById(`pin-${i}`).innerText = atmPin[i-1] || "";
-            }
+            for (let i = 1; i <= 4; i++) { document.getElementById(`pin-${i}`).innerText = atmPin[i-1] || ""; }
         }
 
         function listenToCloud() {
@@ -765,9 +762,7 @@
             document.getElementById('broadcastMsg').innerText = msg;
             toast.classList.add('show');
             playTone(600, 0.2);
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 8000);
+            setTimeout(() => { toast.classList.remove('show'); }, 8000);
         }
 
         function forceExitHypeAndStart() {
@@ -784,32 +779,28 @@
                 list.innerHTML = anglers.map(a => `
                     <div class="match-card p-5 font-bold text-slate-100 flex justify-between items-center">
                         <span><i class="fa-solid fa-user-check text-green-500 mr-4 animate-pulse"></i> ${a.name}</span>
-                        <span class="text-[9px] text-slate-500 uppercase font-black">Linked</span>
+                        <span class="text-[9px] text-slate-500 uppercase font-black tracking-widest">Active</span>
                     </div>
                 `).join('');
                 if(anglers.length === 0) list.innerHTML = '<p class="text-slate-600 text-center italic py-10">Lobby Empty...</p>';
             }
 
             if (globalMatchData.status === 'playing') {
-                if (state.status === 'hype' || state.view === 'hype') {
-                    forceExitHypeAndStart();
-                }
+                if (state.status === 'hype' || state.view === 'hype') { forceExitHypeAndStart(); }
                 if (state.status === 'grace') {
                     state.status = 'playing';
                     state.graceEndTime = null;
                     document.getElementById('statusBanner').classList.add('hidden');
                     document.getElementById('graceLabel').classList.add('hidden');
-                    showNotification("STAY ALERT: Steward added match time.");
+                    document.getElementById('app-container').classList.remove('grace-active');
+                    document.getElementById('mainTimer').classList.remove('text-red-500');
+                    showNotification("TIME ADDED: Steward updated clock.");
                 }
                 state.endTime = globalMatchData.endTime;
-                if (state.view !== 'fishing' && state.status !== 'hype') {
-                    beginFishing(false);
-                }
+                if (state.view !== 'fishing' && state.status !== 'hype') { beginFishing(false); }
             }
 
-            if (globalMatchData.status === 'hype' && state.status !== 'hype') {
-                runGlobalCountdown();
-            }
+            if (globalMatchData.status === 'hype' && state.status !== 'hype') { runGlobalCountdown(); }
 
             if (globalMatchData.status === 'grace' && state.status !== 'grace') {
                 state.graceEndTime = globalMatchData.graceEndTime;
@@ -817,29 +808,23 @@
                 state.status = 'grace';
                 if(state.view !== 'fishing') { navTo('fishing'); }
                 document.getElementById('graceLabel').classList.remove('hidden');
-                showNotification("5 MINUTE GRACE: Log final fish now.");
+                document.getElementById('app-container').classList.add('grace-active');
+                document.getElementById('mainTimer').classList.add('text-red-500');
+                showNotification("5 MINUTE GRACE: Log final fish.");
                 saveState();
             }
 
-            if (globalMatchData.status === 'finished' && state.status !== 'finished') {
-                lockdownMatch(false);
-            }
-
-            if (state.status === 'playing') {
-                state.endTime = globalMatchData.endTime;
-            }
+            if (globalMatchData.status === 'finished' && state.status !== 'finished') { lockdownMatch(false); }
+            if (state.status === 'playing') { state.endTime = globalMatchData.endTime; }
 
             if (globalMatchData.hostId === uid) {
                 state.isHost = true;
-                if(state.status === 'playing' || state.status === 'grace') {
-                    document.getElementById('btnStewardPanelContainer').classList.remove('hidden');
-                }
+                if(state.status === 'playing' || state.status === 'grace') { document.getElementById('btnStewardPanelContainer').classList.remove('hidden'); }
             } else {
                 state.isHost = false;
                 document.getElementById('btnStewardPanelContainer').classList.add('hidden');
                 document.getElementById('stewardDrawer').classList.remove('open');
             }
-            
             renderGlobalLeaderboard();
         }
 
@@ -861,10 +846,12 @@
 
         function createMatch() {
             state.name = document.getElementById('playerName').value || "Steward";
+            state.venue = document.getElementById('venueName').value || "Unknown Venue";
             state.isHost = true;
             state.format = document.getElementById('hostFormat').value;
             state.pin = Math.floor(1000 + Math.random() * 9000).toString(); 
             state.status = 'waiting';
+            
             set(ref(db, 'matches/' + state.pin), {
                 hostId: uid, format: state.format, status: 'waiting', anglers: { [uid]: { name: state.name, score: 0 } }
             }).then(() => {
@@ -878,6 +865,7 @@
 
         function connectToMatch() {
             state.name = document.getElementById('playerName').value || "Angler";
+            state.venue = document.getElementById('venueName').value || "Local Mark";
             state.pin = atmPin;
             state.status = 'waiting';
             get(ref(db, 'matches/' + state.pin)).then((snapshot) => {
@@ -889,14 +877,14 @@
                     document.getElementById('displayPin').innerText = state.pin;
                     if(data.status === 'playing' || data.status === 'grace') {
                         state.endTime = data.endTime; state.status = data.status; beginFishing(false);
-                    } else navTo('waiting');
+                    } else { navTo('waiting'); }
                 } else { alert("PIN invalid."); atmPin = ""; updateAtm(); }
             });
         }
 
         function exitWaitingRoom() {
             if (confirm("Disconnect?")) {
-                if (state.isHost) remove(ref(db, 'matches/' + state.pin));
+                if (state.isHost) { remove(ref(db, 'matches/' + state.pin)); }
                 resetApp();
             }
         }
@@ -958,19 +946,21 @@
                 let now = Date.now();
                 let remaining = state.endTime - now;
                 if (state.status === 'playing') {
-                    // V3.8: 20 MIN ALERT
                     if (remaining <= 1200000 && remaining > 1198000 && !alert20Played) {
-                        alert20Played = true; playAlert(); showNotification("⚠️ MATCH UPDATE: 20 MINUTES REMAINING!");
+                        alert20Played = true; playAlert(); showNotification("⚠️ LAST 20 MINUTES REMAINING!");
                     }
                     if (remaining <= 0) {
                         playHorn(); state.status = 'grace';
-                        if(!state.graceEndTime) state.graceEndTime = Date.now() + 300000; // 5 Min Grace
+                        if(!state.graceEndTime && state.isHost) {
+                            let end = Date.now() + 300000;
+                            update(ref(db, 'matches/' + state.pin), { status: 'grace', graceEndTime: end });
+                        }
                         document.getElementById('graceLabel').classList.remove('hidden');
                         saveState();
                     } else updateTimerDisplay(remaining);
                 } else if (state.status === 'grace') {
                     let graceRem = state.graceEndTime - now;
-                    if (graceRem <= 0) lockdownMatch(state.isHost);
+                    if (graceRem <= 0) { lockdownMatch(state.isHost); }
                     else updateTimerDisplay(graceRem);
                 }
             }, 1000);
@@ -987,7 +977,7 @@
         function adjustSize(val) { let input = document.getElementById('inputSize'); input.value = (parseFloat(input.value) || 0) + val; }
 
         function recordCatch() {
-            let species = document.getElementById('inputSpecies').value; if(!species) return alert("Identify species first!");
+            let species = document.getElementById('inputSpecies').value; if(!species) return alert("Select species first!");
             let finalSize = 0, displaySize = "";
             if (state.format === 'weightLb') {
                 let lbs = parseInt(document.getElementById('inputLbs').value) || 0, oz = parseInt(document.getElementById('inputOz').value) || 0;
@@ -1067,26 +1057,20 @@
 
         function adjustClock(mins) { if(state.isHost) update(ref(db, 'matches/' + state.pin), { status: 'playing', endTime: state.endTime + (mins * 60000), graceEndTime: null }); }
 
-        // V3.8: STEWARD END MATCH ENHANCEMENT
         function endMatchEarly(grace) {
             if(!state.isHost || !state.pin) return;
-            if(grace) {
-                document.getElementById('customEndModal').classList.remove('hidden');
-            } else {
-                if(confirm("ABORT TOURNAMENT INSTANTLY?\n\nFinal standings will be locked. This cannot be undone.")) {
-                    update(ref(db, 'matches/' + state.pin), { status: 'finished' });
-                }
-            }
+            if(grace) { document.getElementById('customEndModal').classList.remove('hidden'); }
+            else { if(confirm("ABORT TOURNAMENT INSTANTLY?")) { update(ref(db, 'matches/' + state.pin), { status: 'finished' }); } }
         }
 
         function stewardSetNewEnd(mins) {
             document.getElementById('customEndModal').classList.add('hidden');
             document.getElementById('stewardDrawer').classList.remove('open');
             if(mins === 0) {
-                update(ref(db, 'matches/' + state.pin), { status: 'grace', endTime: Date.now(), graceEndTime: Date.now() + 300000 });
+                let grace = Date.now() + 300000;
+                update(ref(db, 'matches/' + state.pin), { status: 'grace', endTime: Date.now(), graceEndTime: grace });
             } else {
                 update(ref(db, 'matches/' + state.pin), { status: 'playing', endTime: Date.now() + (mins * 60000), graceEndTime: null });
-                showNotification(`STRIKE TIME SET: ${mins} minutes remaining!`);
             }
         }
 
@@ -1098,7 +1082,10 @@
             if (choice > 0 && choice <= opts.length) update(ref(db, 'matches/' + state.pin), { hostId: opts[choice-1].id });
         }
 
-        function leaveMatchEarly() { if(confirm("LEAVE LIVE SESSION?\n\nStandings remain live. Local record saved.")) { saveHistory(true); resetApp(); } }
+        function leaveMatchEarly() {
+            saveHistory(true); 
+            resetApp(); 
+        }
 
         function lockdownMatch(isHostPushing) {
             clearInterval(clockInterval);
@@ -1112,7 +1099,7 @@
 
         function saveHistory(isL) {
             let h = JSON.parse(localStorage.getItem('matchHistory') || '[]');
-            let record = { id: 'match_' + Date.now(), pin: state.pin, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), format: state.format, score: state.myCatches.reduce((s,c) => s+c.points, 0), personalCatches: [...state.myCatches], standings: globalMatchData?.anglers ? Object.values(globalMatchData.anglers).sort((a,b) => b.score - a.score) : [], playerName: state.name, isLive: isL };
+            let record = { id: 'match_' + Date.now(), pin: state.pin, venue: state.venue, date: new Date().toLocaleDateString(), time: new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}), format: state.format, score: state.myCatches.reduce((s,c) => s+c.points, 0), personalCatches: [...state.myCatches], standings: globalMatchData?.anglers ? Object.values(globalMatchData.anglers).sort((a,b) => b.score - a.score) : [], playerName: state.name, isLive: isL };
             h.unshift(record); localStorage.setItem('matchHistory', JSON.stringify(h));
         }
 
@@ -1124,7 +1111,8 @@
             h.forEach((m, i) => {
                 let card = document.createElement('div'); card.className = "match-card p-6 flex justify-between items-center active:bg-slate-900 transition relative overflow-hidden";
                 let badge = m.isLive ? '<span class="text-[9px] bg-red-600 px-3 py-1 rounded-full text-white font-black ml-3 animate-pulse">LIVE</span>' : '';
-                card.innerHTML = `<div class="flex-1" onclick="viewPastRecord('${m.id}')"><span class="font-black text-white text-lg uppercase">${m.date}</span> ${badge}<br><span class="text-[10px] text-amber font-black tracking-widest uppercase">PIN ${m.pin} • ${m.personalCatches.length} Fish</span></div><div class="text-right flex items-center space-x-6"><div onclick="viewPastRecord('${m.id}')"><div class="text-3xl font-black text-white">${m.score}</div><div class="text-[9px] text-amber uppercase font-black">Points</div></div><button onclick="deleteHistoryItem('${m.id}')" class="text-amber px-2 py-4"><i class="fa-solid fa-trash-can"></i></button></div>`;
+                let venueLabel = m.venue ? `<br><span class="text-[9px] text-slate-500 font-bold uppercase tracking-widest">${m.venue}</span>` : '';
+                card.innerHTML = `<div class="flex-1" onclick="viewPastRecord('${m.id}')"><span class="font-black text-white text-lg uppercase">${m.date}</span> ${badge}${venueLabel}<br><span class="text-[10px] text-amber font-black tracking-widest uppercase">PIN ${m.pin} • ${m.personalCatches.length} Fish</span></div><div class="text-right flex items-center space-x-6"><div onclick="viewPastRecord('${m.id}')"><div class="text-3xl font-black text-white">${m.score}</div><div class="text-[9px] text-amber uppercase font-black">Points</div></div><button onclick="deleteHistoryItem('${m.id}')" class="text-amber px-2 py-4"><i class="fa-solid fa-trash-can"></i></button></div>`;
                 if(i < 6) r.appendChild(card); else a.appendChild(card);
             });
             document.getElementById('archiveContainer').classList.toggle('hidden', h.length <= 6);
@@ -1154,12 +1142,15 @@
 
         function shareResults() {
             let fs = document.getElementById('finalScore').innerText, fc = document.getElementById('finalCount').innerText, fsp = document.getElementById('finalSpecies').innerText;
-            let t = `🏆 Match Result: ${state.name}\nScore: ${fs} Pts\nFish: ${fc}\nSpecies: ${fsp}\nLogged via Sea Diary Match.`;
+            let t = `🏆 Match Result: ${state.name}\nVenue: ${state.venue}\nScore: ${fs} Pts\nFish: ${fc}\nSpecies: ${fsp}\nTournament live via Sea Diary Match.`;
             if (navigator.share) navigator.share({ title: 'Results', text: t });
             else window.open(`https://wa.me/?text=${encodeURIComponent(t)}`);
         }
 
-        function resetApp() { localStorage.removeItem('matchState'); state.status = 'idle'; location.reload(); }
+        function resetApp() { 
+            localStorage.removeItem('matchState'); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
