@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   OFFICIAL SERVICE WORKER - VERSION 4.0.1
-   RESTORATION: FULL VOLUME Logic
+   OFFICIAL SERVICE WORKER - VERSION 4.0.2
+   FULL VOLUME EXPANSION
 */
 
-const CACHE_NAME = 'match-edition-v4.0.1-restored';
+const CACHE_NAME = 'match-edition-v4.0.2-ironclad';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate activation */
+  /* Skip waiting to ensure the update applies immediately */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Service Worker: Opening Cache');
+      console.log('Service Worker: Caching Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Service Worker: Clearing Old Cache', cacheName);
+            console.log('Service Worker: Deleting Old Cache');
             return caches.delete(cacheName);
           }
         })
@@ -38,14 +38,14 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Claim clients to ensure immediate control after update */
+  /* Ensure the new Service Worker takes control immediately */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Return cached asset if found, otherwise fetch from network */
+      /* If asset is in cache, return it. Otherwise, fetch from network. */
       if (response) {
         return response;
       }
