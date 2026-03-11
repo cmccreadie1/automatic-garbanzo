@@ -10,7 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        /* HARDWARE CONSTRAINTS */
+        /* HARDWARE LEVEL LOCK */
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #020617; 
@@ -34,7 +34,6 @@
             overflow: hidden;
         }
 
-        /* SCROLL BEHAVIOR */
         .scrollable-area {
             flex: 1;
             min-height: 0; 
@@ -51,7 +50,7 @@
             overflow: hidden;
         }
 
-        /* UI THEMING */
+        /* CARD ARCHITECTURE */
         .match-card {
             background-color: #1e293b; 
             border: 1px solid #334155; 
@@ -72,7 +71,7 @@
             text-align: center;
         }
 
-        /* ATM CONTROLS */
+        /* BUTTON DESIGN */
         .atm-btn {
             background: #1e293b;
             border: 2px solid #334155;
@@ -104,14 +103,13 @@
             border-radius: 50%;
         }
 
-        /* TOAST SYSTEM */
         #broadcastToast {
             transform: translateY(-150%);
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         #broadcastToast.show { transform: translateY(0); }
         
-        /* DRAWER ENGINE */
+        /* DRAWERS */
         .drawer-right {
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
@@ -126,7 +124,6 @@
         
         .hidden { display: none !important; }
 
-        /* ACTIVE TABS */
         .history-tab.active {
             background-color: #3b82f6; 
             color: #ffffff;
@@ -151,7 +148,7 @@
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1 uppercase text-white">Match Edition</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V3.6.1</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V3.7</div>
             </div>
             
             <div class="w-full max-w-sm space-y-4 pt-2">
@@ -165,10 +162,10 @@
                 </button>
                 
                 <div class="flex space-x-4 pt-1">
-                    <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
+                    <button onclick="navTo('host')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700 transition">
                         <i class="fa-solid fa-crown mr-2 text-amber"></i> Steward
                     </button>
-                    <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700">
+                    <button onclick="navTo('history')" class="flex-1 bg-slate-800 text-slate-300 font-bold py-4 rounded-xl text-sm border border-slate-700 active:bg-slate-700 transition">
                         <i class="fa-solid fa-book mr-2 text-blue-400"></i> History
                     </button>
                 </div>
@@ -188,12 +185,12 @@
         <div id="view-join" class="hidden view-frame p-4 bg-[#020617]">
             <div class="flex justify-between items-center border-b border-slate-800 pb-4 pt-2">
                 <button onclick="navTo('home')" class="text-slate-500 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="text-xl font-black uppercase tracking-tight text-white">Join</h2>
+                <h2 class="text-xl font-black uppercase tracking-tight text-white">Join Room</h2>
                 <div class="w-6"></div>
             </div>
 
             <div class="text-center pt-8 pb-4">
-                <h2 class="text-amber font-bold text-[10px] uppercase tracking-[0.3em] mb-2">PIN Authentication</h2>
+                <h2 class="text-amber font-bold text-[10px] uppercase tracking-[0.3em] mb-2">Match PIN Required</h2>
                 <div class="flex justify-center space-x-2">
                     <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded-xl flex items-center justify-center text-4xl font-black text-white shadow-2xl" id="pin-1"></div>
                     <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded-xl flex items-center justify-center text-4xl font-black text-white shadow-2xl" id="pin-2"></div>
@@ -216,7 +213,7 @@
                 <button class="atm-btn" onclick="atmPress(0)">0</button>
                 <button class="atm-btn text-amber text-xl" onclick="atmDelete()"><i class="fa-solid fa-delete-left"></i></button>
             </div>
-            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl mb-10 shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">Verify PIN</button>
+            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl mb-10 shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">Authenticate</button>
         </div>
 
         <div id="view-host" class="hidden view-frame p-6 space-y-6">
@@ -228,7 +225,7 @@
             
             <div class="match-card p-8 space-y-6">
                 <div>
-                    <label class="block text-amber font-bold text-[10px] uppercase tracking-[0.2em] mb-2">Match Duration</label>
+                    <label class="block text-amber font-bold text-[10px] uppercase tracking-[0.2em] mb-2">Duration (Hours)</label>
                     <select id="hostDuration" class="w-full bg-slate-900 border-2 border-slate-700 p-4 rounded-xl text-xl font-bold appearance-none text-center text-white shadow-inner">
                         <option value="1">1.0 Hour</option>
                         <option value="1.5">1.5 Hours</option>
@@ -254,7 +251,7 @@
                     </select>
                 </div>
                 
-                <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-2xl mt-4 shadow-2xl uppercase tracking-tighter active:scale-95 transition-transform">Create Match Room</button>
+                <button onclick="createMatch()" class="w-full bg-amber text-slate-900 font-black text-2xl py-6 rounded-2xl mt-4 shadow-2xl uppercase tracking-tighter active:scale-95 transition-transform">Initialize Room</button>
             </div>
         </div>
 
@@ -266,7 +263,7 @@
 
             <div class="flex-1 flex flex-col items-center space-y-6">
                 <div class="text-center pt-4">
-                    <h2 class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Steward Lobby</h2>
+                    <h2 class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px]">Steward Command Desk</h2>
                     <h3 class="text-2xl font-black text-white mt-1 uppercase">Ready Anglers</h3>
                 </div>
 
@@ -298,9 +295,12 @@
                     <div class="text-lg font-black tabular-nums tracking-tighter text-white" id="mainTimer">00:00:00</div>
                 </div>
 
-                <div class="bg-slate-800 border border-slate-700 rounded-xl px-5 py-1.5 flex flex-col items-center justify-center min-w-[95px] shadow-inner">
-                    <span class="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Session Total</span>
-                    <span class="text-xl font-black text-white leading-none" id="liveTallyBox">0</span>
+                <div class="flex items-center space-x-3">
+                    <i id="cloudSignal" class="fa-solid fa-cloud text-slate-700 text-lg transition-colors duration-500"></i>
+                    <div class="bg-slate-800 border border-slate-700 rounded-xl px-5 py-1.5 flex flex-col items-center justify-center min-w-[95px] shadow-inner">
+                        <span class="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Session Total</span>
+                        <span class="text-xl font-black text-white leading-none" id="liveTallyBox">0</span>
+                    </div>
                 </div>
 
                 <button id="wakeLockBtn" onclick="toggleWakeLock()" class="text-slate-500 border border-slate-800 px-3 py-1.5 rounded-lg text-[9px] font-black uppercase active:bg-slate-800">
@@ -310,7 +310,7 @@
             
             <div class="flex-none w-full bg-slate-900 border-b border-slate-800 shadow-lg z-10">
                 <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber-400 font-black text-sm uppercase tracking-[0.2em] active:bg-slate-800 transition flex items-center justify-center">
-                    <i class="fa-solid fa-trophy mr-3 animate-bounce"></i> View Live Standings <i class="fa-solid fa-cloud ml-2 text-[10px] opacity-40"></i>
+                    <i class="fa-solid fa-trophy mr-3 animate-bounce"></i> View Live Standings
                 </button>
             </div>
 
@@ -369,7 +369,7 @@
                     </div>
 
                     <div>
-                        <label class="block text-slate-500 font-black text-[10px] uppercase tracking-[0.3em] mb-2 ml-1 text-center" id="labelSize">Fish Measurement</label>
+                        <label class="block text-slate-500 font-black text-[10px] uppercase tracking-[0.3em] mb-2 ml-1 text-center" id="labelSize">Capture Data</label>
                         
                         <div id="deckLength" class="flex space-x-3">
                             <input type="number" id="inputSize" inputmode="decimal" onkeydown="if(event.key === 'Enter') { recordCatch(); this.blur(); }" class="flex-1 bg-slate-900 border-2 border-slate-800 p-4 rounded-2xl text-4xl font-black text-center w-full text-white focus:border-blue-500 outline-none shadow-inner" placeholder="0">
@@ -417,14 +417,27 @@
 
         <div id="view-results" class="hidden view-frame bg-[#020617] text-white p-6 justify-center text-center space-y-6">
             <h1 class="text-5xl font-black uppercase text-amber border-b-4 border-slate-900 pb-6 tracking-tighter">Final Standing</h1>
-            <div class="match-card p-10 shadow-[0_0_50px_rgba(59,130,246,0.15)]">
-                <p class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-center">Total Tournament Score</p>
+            
+            <div class="match-card p-8 shadow-[0_0_50px_rgba(59,130,246,0.15)]">
+                <p class="text-slate-500 font-black uppercase tracking-[0.3em] text-[10px] mb-3 text-center">Total Points Score</p>
                 <p class="text-8xl font-black text-white" id="finalScore">0</p>
             </div>
-            <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-3xl shadow-2xl mt-8 active:bg-green-700 uppercase tracking-widest">
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="match-card p-4 flex flex-col items-center">
+                    <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">Total Fish</span>
+                    <span class="text-3xl font-black text-white" id="finalCount">0</span>
+                </div>
+                <div class="match-card p-4 flex flex-col items-center">
+                    <span class="text-[9px] font-black uppercase text-slate-500 tracking-widest mb-1">Unique Species</span>
+                    <span class="text-3xl font-black text-blue-400" id="finalSpecies">0</span>
+                </div>
+            </div>
+
+            <button onclick="shareResults()" class="w-full bg-green-600 text-white font-black text-2xl py-6 rounded-3xl shadow-2xl mt-4 active:bg-green-700 uppercase tracking-widest">
                 <i class="fa-brands fa-whatsapp mr-3"></i> Export Result
             </button>
-            <button onclick="resetApp()" class="text-slate-700 font-black mt-8 border-b border-slate-900 pb-1 active:text-white uppercase text-[10px] tracking-[0.5em]">Return to Main Menu</button>
+            <button onclick="resetApp()" class="text-slate-700 font-black mt-8 border-b border-slate-900 pb-1 active:text-white uppercase text-[10px] tracking-[0.5em]">Return to Main Lobby</button>
         </div>
 
         <div id="view-history" class="hidden view-frame p-6 bg-[#020617]">
@@ -439,8 +452,8 @@
                     </div>
 
                 <div id="archiveContainer" class="hidden px-1">
-                    <button onclick="toggleArchive()" class="w-full flex justify-between items-center bg-slate-900/50 p-5 rounded-2xl border-2 border-slate-800 active:bg-slate-900 transition shadow-lg">
-                        <span class="font-black text-xs uppercase tracking-[0.3em] text-slate-500"><i class="fa-solid fa-box-archive mr-2 text-amber opacity-40"></i> Archived Folders</span>
+                    <button onclick="toggleArchive()" class="w-full flex justify-between items-center bg-slate-950/50 p-5 rounded-2xl border-2 border-slate-800 active:bg-slate-900 transition shadow-lg">
+                        <span class="font-black text-xs uppercase tracking-[0.3em] text-slate-500"><i class="fa-solid fa-box-archive mr-2 text-amber opacity-40"></i> Older Records</span>
                         <i class="fa-solid fa-chevron-down text-slate-600 transition-transform duration-300" id="archiveChevron"></i>
                     </button>
                     <div id="historyArchiveList" class="hidden pt-6 space-y-4">
@@ -454,37 +467,25 @@
                 <i class="fa-solid fa-xmark mr-4"></i> Close Guide
             </button>
             <div class="scrollable-area p-8 space-y-10 text-slate-300">
-                
                 <section>
                     <h4 class="text-amber font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Overview</h4>
-                    <p class="text-sm leading-relaxed">Sea Diary: Match Edition is a synchronized, cloud-based platform for angling competitions. A central Steward controls the match room while competitors log live data from the beach.</p>
+                    <p class="text-sm leading-relaxed">Sea Diary: Match Edition is a synchronized scoring platform. A central Steward controls the match room while competitors log live data via the cloud.</p>
                 </section>
-
                 <section>
                     <h4 class="text-blue-400 font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Competitor Role</h4>
                     <ul class="space-y-4 text-sm">
-                        <li><b class="text-white">Joining:</b> Enter your name and the 4-digit PIN provided by your Steward.</li>
-                        <li><b class="text-white">Logging:</b> Select species, enter measurements, and hit "Submit Fish".</li>
-                        <li><b class="text-white">Live Tally:</b> Your session total is always visible in the top navigation bar.</li>
-                        <li><b class="text-white">Standings:</b> Use the golden "Standings" button to see the live rankings.</li>
+                        <li><b class="text-white">Joining:</b> Enter your name and provided PIN.</li>
+                        <li><b class="text-white">Logging:</b> Select species, enter size/weight, and submit.</li>
+                        <li><b class="text-white">Signal:</b> The cloud icon in the top bar turns green when your data is syncing.</li>
                     </ul>
                 </section>
-
                 <section>
                     <h4 class="text-red-500 font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Steward Role</h4>
                     <ul class="space-y-4 text-sm">
-                        <li><b class="text-white">Setup:</b> Configure the duration and scoring rules before opening the room.</li>
-                        <li><b class="text-white">Start Whistle:</b> Tap "Start Match" to trigger a 10-second sync countdown for all.</li>
-                        <li><b class="text-white">Clock Mgmt:</b> Add or subtract time using the Master Console if delays occur.</li>
-                        <li><b class="text-white">Ending:</b> Use "Final Whistle" for a 10-min grace period or "Abort" for instant closure.</li>
+                        <li><b class="text-white">Whistle:</b> Tap "Start Match" to trigger the synchronized countdown.</li>
+                        <li><b class="text-white">Safety:</b> Critical commands require dual-confirmation to prevent accidental closure.</li>
                     </ul>
                 </section>
-
-                <section>
-                    <h4 class="text-slate-400 font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Troubleshooting</h4>
-                    <p class="text-xs leading-relaxed opacity-70">If a device gets stuck or disconnected, tap the "System Reset" button in the Lobby to clear the cache and reconnect to the cloud.</p>
-                </section>
-
             </div>
         </div>
 
@@ -494,8 +495,8 @@
             </button>
             
             <div class="flex-none flex bg-slate-900 p-3 space-x-3 border-b border-slate-800 shadow-lg">
-                <button id="tab-standings" onclick="switchHistoryTab('standings')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Tournament Standings</button>
-                <button id="tab-record" onclick="switchHistoryTab('record')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Individual Catch Record</button>
+                <button id="tab-standings" onclick="switchHistoryTab('standings')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Rankings</button>
+                <button id="tab-record" onclick="switchHistoryTab('record')" class="history-tab flex-1 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.2em] transition bg-slate-800 text-slate-400 border border-slate-700">Catch Journal</button>
             </div>
 
             <div id="historyContent" class="scrollable-area p-8">
@@ -522,7 +523,7 @@
                 <i class="fa-solid fa-arrow-left mr-4"></i> RETURN TO FISHING
             </button>
             <div class="flex-none p-5 bg-slate-950 border-b border-slate-900 text-center shadow-lg">
-                <h2 class="font-black text-xl text-blue-400 uppercase tracking-[0.2em]"><i class="fa-solid fa-user-shield mr-3"></i> Steward Deck</h2>
+                <h2 class="font-black text-xl text-blue-400 uppercase tracking-[0.2em]"><i class="fa-solid fa-user-shield mr-3"></i> Steward Desk</h2>
             </div>
             <div class="scrollable-area p-10 space-y-10">
                 <div>
@@ -534,11 +535,11 @@
                 </div>
                 <hr class="border-slate-800">
                 <button onclick="transferSteward()" class="w-full bg-slate-900 border-2 border-slate-800 text-slate-400 font-black py-6 rounded-3xl shadow-xl active:bg-slate-800 transition flex justify-center items-center uppercase tracking-widest text-sm">
-                    <i class="fa-solid fa-right-left mr-4 text-amber opacity-40"></i> Relinquish Control
+                    <i class="fa-solid fa-right-left mr-4 text-amber opacity-40"></i> Relinquish Status
                 </button>
                 <hr class="border-slate-800 pt-5">
                 <button onclick="endMatchEarly(true)" class="w-full bg-amber text-slate-900 font-black py-7 rounded-3xl shadow-2xl active:bg-yellow-600 uppercase tracking-widest text-lg leading-tight">
-                    End Session Early<br><span class="text-[11px] font-black opacity-60">(10 Min Grace)</span>
+                    End Session Early<br><span class="text-[11px] font-black opacity-60">(Trigger 10 Min Grace)</span>
                 </button>
                 <button onclick="endMatchEarly(false)" class="w-full bg-red-600 text-white font-black py-7 rounded-3xl shadow-[0_0_40px_rgba(220,38,38,0.3)] active:bg-red-700 uppercase tracking-widest text-lg leading-tight mt-6">
                     🚨 Emergency Abort<br><span class="text-[11px] font-black opacity-60">(Instant Results)</span>
@@ -661,7 +662,7 @@
                 return;
             }
             if (state.view === 'fishing' || state.status === 'playing') {
-                if (confirm("Match is active. Exit deck?")) {
+                if (confirm("Match record is safe in cloud. Exit Deck?")) {
                     window.history.back(); 
                 } else {
                     history.pushState(null, null, window.location.href); 
@@ -720,12 +721,26 @@
 
         function listenToCloud() {
             if(!state.pin) return;
+            
+            // CONNECTIVITY LISTENER
+            const connectedRef = ref(db, ".info/connected");
+            onValue(connectedRef, (snap) => {
+                const icon = document.getElementById('cloudSignal');
+                if (icon) {
+                    if (snap.val() === true) {
+                        icon.style.color = '#22c55e'; // GREEN
+                    } else {
+                        icon.style.color = '#ef4444'; // RED
+                    }
+                }
+            });
+
             onValue(ref(db, 'matches/' + state.pin), (snapshot) => {
                 if (snapshot.exists()) {
                     globalMatchData = snapshot.val();
                     processCloudUpdate();
                 } else if (['waiting', 'playing', 'grace', 'hype'].includes(state.status)) {
-                    alert("Steward closed this session.");
+                    alert("Tournament ended by Steward.");
                     resetApp();
                 }
             });
@@ -769,7 +784,7 @@
                     state.status = 'playing';
                     state.graceEndTime = null;
                     document.getElementById('statusBanner').classList.add('hidden');
-                    showNotification("STAY ALERT: Steward added match time.");
+                    showNotification("STAY ALERT: Time added to clock.");
                 }
                 state.endTime = globalMatchData.endTime;
                 if (state.view !== 'fishing' && state.status !== 'hype') {
@@ -786,7 +801,7 @@
                 state.endTime = globalMatchData.endTime; 
                 state.status = 'grace';
                 if(state.view !== 'fishing') { navTo('fishing'); }
-                showNotification("10 MINUTE GRACE: Log final fish now.");
+                showNotification("FINAL CALL: Grace Period active.");
                 saveState();
             }
 
@@ -877,7 +892,7 @@
         }
 
         function exitWaitingRoom() {
-            if (confirm("Disconnect and leave?")) {
+            if (confirm("Disconnect and return home?")) {
                 if (state.isHost) {
                     remove(ref(db, 'matches/' + state.pin));
                 }
@@ -955,11 +970,11 @@
             if (state.format === 'weightLb') {
                 deckL.classList.add('hidden');
                 deckW.classList.remove('hidden');
-                label.innerText = "Weight Entry (Lbs & Oz)";
+                label.innerText = "Current Weight (Lbs & Oz)";
             } else {
                 deckL.classList.remove('hidden');
                 deckW.classList.add('hidden');
-                if (state.format === 'weightKg') label.innerText = "Weight (Kg)";
+                if (state.format === 'weightKg') label.innerText = "Current Weight (Kg)";
                 else if (state.format === 'speciesHunt') label.innerText = "Size (Optional)";
                 else label.innerText = "Measurement (cm)";
             }
@@ -1015,7 +1030,7 @@
 
         function recordCatch() {
             let species = document.getElementById('inputSpecies').value;
-            if(!species) return alert("Identify species first!");
+            if(!species) return alert("Select species first!");
             
             let finalSize = 0;
             let displaySize = "";
@@ -1062,7 +1077,6 @@
                 });
             }
             
-            // CLEAR INPUTS
             document.getElementById('inputSpecies').value = "";
             document.getElementById('inputSize').value = "";
             document.getElementById('inputLbs').value = "";
@@ -1121,7 +1135,7 @@
                         <span class="text-sm ml-2 text-slate-400 font-bold">${szLabel}</span>
                         <span class="text-xs text-amber ml-2 font-black">${ptLabel}</span>
                     </div>
-                    <button onclick="deleteCatch('${c.id}')" class="text-slate-700 px-4 active:text-red-500 transition">
+                    <button onclick="deleteCatch('${c.id}')" class="text-slate-600 px-4 active:text-red-500 transition">
                         <i class="fa-solid fa-trash-can"></i>
                     </button>
                 `;
@@ -1176,8 +1190,8 @@
             if(!state.isHost || !state.pin) return;
             
             let message = grace 
-                ? "STRIKE FINAL WHISTLE?\n\nThis will move all connected devices to the 10-minute grace period immediately."
-                : "ABORT TOURNAMENT?\n\nThis will end the match instantly for all anglers and display results. This action is final.";
+                ? "STRIKE FINAL WHISTLE?\n\nThis will trigger the 10-minute grace period for all connected devices immediately."
+                : "ABORT TOURNAMENT?\n\nThis will end the session instantly for everyone and display results. This cannot be undone.";
 
             if(confirm(message)) {
                 document.getElementById('stewardDrawer').classList.remove('open');
@@ -1221,7 +1235,14 @@
             saveHistory(false);
             state.status = 'finished';
             saveState();
-            document.getElementById('finalScore').innerText = state.myCatches.reduce((s,c) => s + c.points, 0);
+            
+            const totalScore = state.myCatches.reduce((s,c) => s + c.points, 0);
+            const speciesSet = new Set(state.myCatches.map(c => c.species));
+            
+            document.getElementById('finalScore').innerText = totalScore;
+            document.getElementById('finalCount').innerText = state.myCatches.length;
+            document.getElementById('finalSpecies').innerText = speciesSet.size;
+
             navTo('results');
         }
 
@@ -1287,7 +1308,7 @@
         }
 
         function deleteHistoryItem(id) {
-            if(confirm("Wipe this record?")) {
+            if(confirm("Wipe this record from vault?")) {
                 let h = JSON.parse(localStorage.getItem('matchHistory') || '[]');
                 h = h.filter(m => m.id !== id);
                 localStorage.setItem('matchHistory', JSON.stringify(h));
@@ -1332,7 +1353,7 @@
                                 <b class="text-white text-2xl tracking-tighter">${a.score}</b>
                             </div>
                         `).join('')}
-                        ${m.standings.length === 0 ? '<p class="text-slate-800 text-center py-10 font-black italic uppercase tracking-widest text-xs">No standings recorded</p>' : ''}
+                        ${m.standings.length === 0 ? '<p class="text-slate-800 text-center py-10 font-black italic uppercase tracking-widest text-xs">No entries recorded</p>' : ''}
                     </div>
                 `;
             } else {
@@ -1382,7 +1403,9 @@
 
         function shareResults() {
             let fs = document.getElementById('finalScore').innerText;
-            let t = `🏆 Match Standing: ${state.name}\nFinal Points: ${fs}!\nTournament deck live on Sea Diary Match.`;
+            let fc = document.getElementById('finalCount').innerText;
+            let fsp = document.getElementById('finalSpecies').innerText;
+            let t = `🏆 Match Result: ${state.name}\nScore: ${fs} Points\nFish Count: ${fc}\nSpecies: ${fsp}\nTournament live via Sea Diary Match.`;
             if (navigator.share) {
                 navigator.share({ title: 'Results', text: t });
             } else {
