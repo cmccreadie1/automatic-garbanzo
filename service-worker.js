@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VERSION 4.3.6 - PRECISION LINK
-   FULL VOLUME SERVICE WORKER
+   STABILITY RELEASE - VERSION 4.3.7
+   STEWARD DELEGATION FIX
 */
 
-const CACHE_NAME = 'match-edition-v4.3.6-timer-fix';
+const CACHE_NAME = 'match-edition-v4.3.7-delegatefix';
 
 const ASSETS = [
   './',
@@ -13,12 +13,10 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate activation to repair the timer UI link */
   self.skipWaiting();
-  
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Gold Master 4.3.6 Assets');
+      console.log('SW: Caching 4.3.7 Steward Transfer Fix');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,28 +28,19 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging Legacy Logic');
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  
-  /* Synchronize all clients to ensure visual links are restored */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Priority 1: Speed - Instant load from cache for beach use */
-      if (response) {
-        return response;
-      }
-      
-      /* Priority 2: Sync - Live fetch for cloud updates */
-      return fetch(event.request);
+      return response || fetch(event.request);
     })
   );
 });
