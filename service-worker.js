@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VERSION 4.2.0 - PROFESSIONAL STRIKE
-   FULL VOLUME SERVICE WORKER
+   STABILITY RELEASE - VERSION 4.2.1
+   GRACE PERIOD RECONSTRUCTION
 */
 
-const CACHE_NAME = 'match-edition-v4.2.0-pro';
+const CACHE_NAME = 'match-edition-v4.2.1-gracefix';
 
 const ASSETS = [
   './',
@@ -13,12 +13,10 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate takeover */
   self.skipWaiting();
-  
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Gold Master 4.2.0 Assets');
+      console.log('SW: Caching 4.2.1 Grace Period Fix');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,25 +28,19 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging Legacy Logic');
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
-  
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      if (response) {
-        return response;
-      }
-      
-      return fetch(event.request);
+      return response || fetch(event.request);
     })
   );
 });
