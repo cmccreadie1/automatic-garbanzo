@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   OFFICIAL GOLD MASTER v2 
-   FULL VOLUME SERVICE WORKER
+   STABILITY RELEASE - VERSION 4.0.4
+   FULL VOLUME Logic
 */
 
-const CACHE_NAME = 'match-gold-v2-restored';
+const CACHE_NAME = 'match-edition-v4.0.4-fix';
 
 const ASSETS = [
   './',
@@ -13,12 +13,11 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force the waiting service worker to become active */
+  /* Immediate skip to ensure the new connection logic takes over */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('Cache Opened: Version Gold Master v2');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +29,6 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('Clearing old cache logic');
             return caches.delete(cacheName);
           }
         })
@@ -38,19 +36,16 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Ensure the new SW takes immediate control */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Return from cache if found */
       if (response) {
         return response;
       }
       
-      /* Otherwise fetch from network */
       return fetch(event.request);
     })
   );
