@@ -1,4 +1,4 @@
-const CACHE_NAME = 'match-edition-v3.9';
+const CACHE_NAME = 'match-edition-v4.0';
 const ASSETS = [
   './',
   './index.html',
