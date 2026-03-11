@@ -10,7 +10,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        /* HARDWARE SYSTEM CONSTRAINTS */
+        /* HARDWARE CONSTRAINTS */
         html, body {
             font-family: 'Inter', sans-serif;
             background-color: #020617; 
@@ -32,10 +32,10 @@
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            transition: background-color 0.6s ease-in-out;
+            transition: background-color 0.5s ease;
         }
 
-        /* V4.0.1 RED ALERT GRACE PERIOD STYLE */
+        /* V4.0.4 RED ALERT */
         #app-container.grace-active {
             background-color: #450a0a !important; 
         }
@@ -56,7 +56,6 @@
             overflow: hidden;
         }
 
-        /* CARD ARCHITECTURE */
         .match-card {
             background-color: #1e293b; 
             border: 1px solid #334155; 
@@ -66,7 +65,6 @@
 
         .text-amber { color: #f59e0b; }
         .bg-amber { background-color: #f59e0b; }
-        .border-amber { border-color: #f59e0b; }
         
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button {
@@ -78,7 +76,6 @@
             text-align: center;
         }
 
-        /* ATM STYLE PAD */
         .atm-btn {
             background: #1e293b;
             border: 2px solid #334155;
@@ -92,10 +89,7 @@
             transition: background 0.1s;
             color: #f8fafc;
         }
-        .atm-btn:active { 
-            background: #3b82f6; 
-            color: #ffffff; 
-        }
+        .atm-btn:active { background: #3b82f6; color: #ffffff; }
         
         @keyframes pulse-ring {
             0% { transform: scale(0.8); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
@@ -116,7 +110,6 @@
         }
         #broadcastToast.show { transform: translateY(0); }
         
-        /* DRAWER ENGINE */
         .drawer-right {
             transition: transform 0.3s ease-in-out;
             transform: translateX(100%);
@@ -140,7 +133,7 @@
 
         #customEndModal {
             background: rgba(0,0,0,0.9);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -149,7 +142,7 @@
     <div id="broadcastToast" class="fixed top-4 inset-x-4 z-[200] bg-blue-600 text-white p-5 rounded-2xl shadow-2xl flex items-center space-x-4 border-2 border-white/20">
         <i class="fa-solid fa-bullhorn text-2xl animate-bounce"></i>
         <div class="flex-1">
-            <p class="font-black uppercase text-[10px] tracking-widest leading-none opacity-80">Official Announcement</p>
+            <p class="font-black uppercase text-[10px] tracking-widest leading-none opacity-80">Steward Broadcast</p>
             <p id="broadcastMsg" class="font-bold text-sm leading-tight mt-1"></p>
         </div>
     </div>
@@ -158,14 +151,13 @@
         <div class="match-card w-full max-w-sm p-8 space-y-6 border-2 border-amber">
             <div class="text-center">
                 <i class="fa-solid fa-hourglass-end text-amber text-4xl mb-3"></i>
-                <h3 class="text-xl font-black uppercase tracking-tight">Set Strike Time</h3>
-                <p class="text-slate-400 text-xs mt-2 leading-relaxed">Adjust the final clock for all anglers.</p>
+                <h3 class="text-xl font-black uppercase tracking-tight">Set Final Whistle</h3>
+                <p class="text-slate-400 text-xs mt-2 leading-relaxed">Choose when the countdown ends.</p>
             </div>
             <div class="grid grid-cols-1 gap-3">
                 <button onclick="stewardSetNewEnd(5)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">5 MINS REMAINING</button>
                 <button onclick="stewardSetNewEnd(10)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">10 MINS REMAINING</button>
-                <button onclick="stewardSetNewEnd(15)" class="bg-slate-900 border border-slate-700 py-4 rounded-xl font-black text-white active:bg-amber active:text-slate-900 transition">15 MINS REMAINING</button>
-                <button onclick="stewardSetNewEnd(0)" class="bg-red-600 py-4 rounded-xl font-black text-white active:bg-red-700 transition uppercase tracking-widest text-xs leading-none">STRIKE NOW<br><span class="text-[9px] opacity-60">(Forces 5 Min Grace)</span></button>
+                <button onclick="stewardSetNewEnd(0)" class="bg-red-600 py-4 rounded-xl font-black text-white active:bg-red-700 transition uppercase tracking-widest text-xs leading-none">STRIKE NOW<br><span class="text-[9px] opacity-60">(5 Min Grace)</span></button>
             </div>
             <button onclick="document.getElementById('customEndModal').classList.add('hidden')" class="w-full text-slate-500 font-black uppercase text-[10px] tracking-[0.3em] pt-4">Cancel</button>
         </div>
@@ -177,7 +169,7 @@
             <div class="text-center">
                 <i class="fa-solid fa-stopwatch text-amber text-6xl mb-2"></i>
                 <h1 class="text-3xl font-black tracking-tight mb-1 uppercase text-white">Match Edition Pro</h1>
-                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> GOLD MASTER v2</div>
+                <div class="text-slate-500 font-bold text-sm tracking-widest"><i class="fa-solid fa-cloud text-green-500 mr-1"></i> CLOUD V4.0.4</div>
             </div>
             
             <div class="w-full max-w-sm space-y-3 pt-2">
@@ -224,7 +216,7 @@
                 <div class="w-6"></div>
             </div>
             <div class="text-center pt-8 pb-4">
-                <h2 class="text-slate-400 font-black text-[12px] uppercase tracking-[0.3em] mb-4">Room PIN Required</h2>
+                <h2 class="text-slate-400 font-black text-[12px] uppercase tracking-[0.3em] mb-4">Room PIN</h2>
                 <div class="flex justify-center space-x-2">
                     <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded-xl flex items-center justify-center text-4xl font-black text-white shadow-2xl" id="pin-1"></div>
                     <div class="w-16 h-20 bg-slate-800 border-b-4 border-amber rounded-xl flex items-center justify-center text-4xl font-black text-white shadow-2xl" id="pin-2"></div>
@@ -246,18 +238,18 @@
                 <button class="atm-btn" onclick="atmPress(0)">0</button>
                 <button class="atm-btn text-amber text-xl" onclick="atmDelete()"><i class="fa-solid fa-delete-left"></i></button>
             </div>
-            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl mb-10 shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">Validate PIN</button>
+            <button id="btn-connect" onclick="connectToMatch()" class="hidden w-full max-w-sm mx-auto bg-blue-600 text-white font-black text-2xl py-6 rounded-2xl mb-10 shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">Verify</button>
         </div>
 
         <div id="view-host" class="hidden view-frame p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3 text-white text-center">
                 <button onclick="navTo('home')" class="text-slate-500 text-2xl px-2"><i class="fa-solid fa-arrow-left"></i></button>
-                <h2 class="text-xl font-black uppercase tracking-tight">Create Session</h2>
+                <h2 class="text-xl font-black uppercase tracking-tight">Session Setup</h2>
                 <div class="w-6"></div>
             </div>
-            <div class="match-card p-6 space-y-4">
+            <div class="match-card p-6 space-y-4 text-center">
                 <div>
-                    <label class="block text-slate-400 font-black text-[11px] uppercase tracking-[0.2em] mb-2 text-center">Tournament Hours</label>
+                    <label class="block text-slate-400 font-black text-[11px] uppercase tracking-[0.2em] mb-2">Tournament Hours</label>
                     <select id="hostDuration" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-lg font-black appearance-none text-center text-white shadow-inner">
                         <option value="1">1.0 Hour</option>
                         <option value="2">2.0 Hours</option>
@@ -267,7 +259,7 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-slate-400 font-black text-[11px] uppercase tracking-[0.2em] mb-2 text-center">Tournament Rules</label>
+                    <label class="block text-slate-400 font-black text-[11px] uppercase tracking-[0.2em] mb-2">Tournament Format</label>
                     <select id="hostFormat" class="w-full bg-slate-900 border border-slate-700 p-4 rounded-xl text-lg font-black appearance-none text-center text-white shadow-inner">
                         <option value="length">Length (cm)</option>
                         <option value="length10">Length + 10 Pts</option>
@@ -292,7 +284,7 @@
                     <button onclick="triggerHypeStart()" class="w-full bg-red-600 text-white font-black text-2xl py-6 rounded-3xl animate-pulse shadow-2xl uppercase active:scale-95 transition-transform">🚀 START MATCH</button>
                 </div>
                 <div id="joinerWaitingText" class="w-full max-w-sm pb-6 text-center">
-                    <p class="text-lg font-bold text-slate-400 italic">Cloud Connected... Waiting.</p>
+                    <p class="text-lg font-bold text-slate-400 italic">Connected to Cloud... Waiting.</p>
                 </div>
             </div>
         </div>
@@ -308,12 +300,12 @@
                         <div class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
                         <div class="text-lg font-black tabular-nums tracking-tighter text-white leading-none" id="mainTimer">00:00:00</div>
                     </div>
-                    <span id="graceLabel" class="hidden text-[12px] font-black text-red-500 uppercase tracking-widest mt-1 ml-4 animate-pulse">GRACE PERIOD</span>
+                    <span id="graceLabel" class="hidden text-[12px] font-black text-red-500 uppercase tracking-widest mt-1 ml-4 animate-pulse">GRACE</span>
                 </div>
                 <div class="flex items-center space-x-3">
                     <i id="cloudSignal" class="fa-solid fa-cloud text-slate-700 text-lg transition-colors duration-500"></i>
                     <div class="bg-slate-800 border border-slate-700 rounded-xl px-5 py-1.5 flex flex-col items-center justify-center min-w-[95px] shadow-inner">
-                        <span class="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Session Total</span>
+                        <span class="text-[8px] font-black uppercase text-slate-500 tracking-widest leading-none mb-1">Total Score</span>
                         <span class="text-xl font-black text-white leading-none" id="liveTallyBox">0</span>
                     </div>
                 </div>
@@ -324,7 +316,7 @@
             
             <div class="flex-none w-full bg-slate-900 border-b border-slate-800 shadow-lg z-10">
                 <button onclick="document.getElementById('leaderboardDrawer').classList.add('open')" class="w-full py-4 text-amber-400 font-black text-sm uppercase tracking-[0.2em] active:bg-slate-800 transition flex items-center justify-center">
-                    <i class="fa-solid fa-trophy mr-3 animate-bounce"></i> View Live Standing
+                    <i class="fa-solid fa-trophy mr-3 animate-bounce"></i> View Global Standing
                 </button>
             </div>
 
@@ -333,9 +325,9 @@
                 <div class="match-card p-4 space-y-4">
                     <div class="flex space-x-2">
                         <div class="flex-1">
-                            <label class="block text-slate-400 font-black text-[10px] uppercase tracking-widest mb-1.5 ml-1">Fish Species</label>
+                            <label class="block text-slate-400 font-black text-[10px] uppercase tracking-widest mb-1.5 ml-1">Species</label>
                             <select id="inputSpecies" onchange="focusMeasurement()" class="w-full bg-slate-900 border-2 border-slate-800 p-3 rounded-xl text-lg font-black appearance-none text-white focus:border-blue-500 transition shadow-inner">
-                                <option value="" disabled selected>-- Select --</option>
+                                <option value="" disabled selected>-- Select Fish --</option>
                                 <optgroup label="Roundfish">
                                     <option value="Cod">Cod</option>
                                     <option value="Whiting">Whiting</option>
@@ -364,7 +356,7 @@
                                     <option value="Spotted Ray">Spotted Ray</option>
                                     <option value="Blonde Ray">Blonde Ray</option>
                                 </optgroup>
-                                <optgroup label="Mini / Pelagics" id="customSpeciesGroup">
+                                <optgroup label="Others" id="customSpeciesGroup">
                                     <option value="Ballan Wrasse">Ballan Wrasse</option>
                                     <option value="Corkwing Wrasse">Corkwing Wrasse</option>
                                     <option value="Conger Eel">Conger Eel</option>
@@ -402,7 +394,7 @@
                 </div>
 
                 <div class="pt-2">
-                    <h3 class="text-slate-400 font-black text-[11px] uppercase tracking-[0.4em] mb-3 ml-2 text-center opacity-60">Session Journal</h3>
+                    <h3 class="text-slate-400 font-black text-[11px] uppercase tracking-[0.4em] mb-3 ml-2 text-center opacity-60">Personal Match Journal</h3>
                     <div id="localCatchList" class="space-y-3 pb-6"></div>
                 </div>
 
@@ -476,6 +468,12 @@
                         <li><b class="text-white">Grace Period:</b> RED background means 5 mins to finish.</li>
                     </ul>
                 </section>
+                <section>
+                    <h4 class="text-red-500 font-black uppercase tracking-widest mb-4 border-b border-slate-800 pb-2">Steward Role</h4>
+                    <ul class="space-y-3 text-sm">
+                        <li><b class="text-white">Timing:</b> All timing actions trigger a mandatory 5-min grace period before results lock.</li>
+                    </ul>
+                </section>
             </div>
         </div>
 
@@ -493,7 +491,7 @@
         <div id="leaderboardDrawer" class="drawer-right fixed inset-0 w-full bg-[#020617] z-[101] flex flex-col shadow-2xl">
             <button onclick="document.getElementById('leaderboardDrawer').classList.remove('open')" class="flex-none w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-8 uppercase tracking-[0.3em] flex justify-center items-center active:bg-blue-800"><i class="fa-solid fa-arrow-left mr-4 animate-pulse"></i> RETURN TO FISHING</button>
             <div class="flex-none p-5 bg-slate-900 flex justify-center items-center border-b border-slate-800 shadow-lg"><h2 class="font-black text-xl tracking-widest text-slate-100 uppercase">Live Global Standing</h2></div>
-            <div class="flex-none bg-amber text-slate-900 p-5 text-center border-b-8 border-yellow-600 shadow-2xl" id="bountyContainer"><p class="text-[11px] font-black uppercase mb-1 text-slate-900">👑 Match Biggest Fish</p><p class="font-black text-2xl tracking-tighter text-slate-900" id="bountyBanner">Waiting...</p></div>
+            <div class="flex-none bg-amber text-slate-900 p-5 text-center border-b-8 border-yellow-600 shadow-2xl" id="bountyContainer"><p class="text-[11px] font-black uppercase mb-1">👑 Match Biggest Fish</p><p class="font-black text-2xl tracking-tighter" id="bountyBanner">Waiting...</p></div>
             <div id="leaderboardList" class="scrollable-area p-5 space-y-4"></div>
         </div>
 
@@ -518,7 +516,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue, update, get, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, onValue, update, get, remove, goOnline, goOffline } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAEDi6Zr6eR88jfCiBE05zTiXaRtd3dioY",
@@ -561,7 +559,7 @@
         let alert20Played = false;
         let isArchiveOpen = false;
 
-        // BINDINGS: FULLY UNPACKED FOR GOLD MASTER
+        // BINDINGS
         function navTo(viewId) {
             document.querySelectorAll('.view-frame').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${viewId}`).classList.remove('hidden');
@@ -667,7 +665,6 @@
                 if (state.status === 'grace') {
                     state.status = 'playing';
                     state.graceEndTime = null;
-                    document.getElementById('statusBanner').classList.add('hidden');
                     document.getElementById('graceLabel').classList.add('hidden');
                     document.getElementById('app-container').classList.remove('grace-active');
                     showNotification("MATCH RESURRECTED: Steward added time.");
@@ -727,35 +724,56 @@
             });
         }
 
+        /* V4.0.4 IRONCLAD HANDSHAKE */
         function createMatch() {
             state.name = document.getElementById('playerName').value || "Steward";
             state.venue = document.getElementById('venueName').value || "Unknown Venue";
             state.isHost = true;
             state.format = document.getElementById('hostFormat').value;
             state.pin = Math.floor(1000 + Math.random() * 9000).toString(); 
-            state.status = 'waiting';
 
-            const matchRef = ref(db, 'matches/' + state.pin);
-            
-            set(matchRef, {
-                hostId: uid,
-                format: state.format,
-                status: 'waiting',
-                anglers: {
-                    [uid]: {
-                        name: state.name,
-                        score: 0
-                    }
+            /* Step 1: Force Cloud Reconnect */
+            goOffline(db);
+            goOnline(db);
+
+            /* Step 2: Test Heartbeat */
+            const connectedRef = ref(db, ".info/connected");
+            onValue(connectedRef, (snap) => {
+                if (snap.val() === true) {
+                    /* Heartbeat OK - Proceed */
+                    const matchRef = ref(db, 'matches/' + state.pin);
+                    
+                    set(matchRef, {
+                        hostId: uid,
+                        format: state.format,
+                        status: 'waiting',
+                        anglers: {
+                            [uid]: {
+                                name: state.name,
+                                score: 0
+                            }
+                        }
+                    }).then(() => {
+                        state.status = 'waiting';
+                        listenToCloud();
+                        document.getElementById('displayPin').innerText = state.pin;
+                        document.getElementById('hostControls').classList.remove('hidden');
+                        document.getElementById('joinerWaitingText').classList.add('hidden');
+                        navTo('waiting');
+                    }).catch((error) => {
+                        console.error("Database Write Error:", error);
+                        alert("Cloud Connection Refused: " + error.message);
+                        state.status = 'idle';
+                    });
+                } else {
+                    /* Heartbeat FAIL after 5 seconds */
+                    setTimeout(() => {
+                        if (state.view === 'host' && state.status === 'idle') {
+                            alert("Database Offline. Please toggle Airplane mode or check your signal.");
+                        }
+                    }, 5000);
                 }
-            }).then(() => {
-                listenToCloud();
-                document.getElementById('displayPin').innerText = state.pin;
-                document.getElementById('hostControls').classList.remove('hidden');
-                document.getElementById('joinerWaitingText').classList.add('hidden');
-                navTo('waiting');
-            }).catch((error) => {
-                alert("Cloud Connection Error. Check internet signal.");
-            });
+            }, { onlyOnce: true });
         }
 
         function connectToMatch() {
@@ -1253,7 +1271,7 @@
             location.reload(); 
         }
 
-        // EXPLICIT EXPOSURE
+        // GLOBAL EXPOSURE
         window.atmPress = atmPress;
         window.atmDelete = atmDelete;
         window.navTo = navTo;
