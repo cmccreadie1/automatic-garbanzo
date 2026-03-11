@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VERSION 4.3.3 - LOBBY FACTORY RESET
+   VERSION 4.3.4 - BOUNTY LOCK
    FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.3.3-reset';
+const CACHE_NAME = 'match-edition-v4.3.4-bounty';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate takeover of the factory reset logic */
+  /* Force the new leaderboard logic to take effect immediately */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Gold Master 4.3.3 Assets');
+      console.log('SW: Caching Gold Master 4.3.4 Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -38,7 +38,7 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Synchronize all clients to ensure reset logic is universal */
+  /* Synchronize all clients to ensure visual updates are universal */
   self.clients.claim();
 });
 
@@ -50,7 +50,7 @@ self.addEventListener('fetch', (event) => {
         return response;
       }
       
-      /* Priority 2: Network fetch for live data sync */
+      /* Priority 2: Live network fetch for real-time cloud sync */
       return fetch(event.request);
     })
   );
