@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VERSION 4.3.0 - FINAL POLISH
+   VERSION 4.3.1 - EXIT ENGINE FIX
    FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.3.0-polish';
+const CACHE_NAME = 'match-edition-v4.3.1-close-fix';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate update of the guide text and UI controls */
+  /* Force the new UI and exit logic to activate immediately */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Polish Build 4.3.0 Assets');
+      console.log('SW: Caching Gold Master 4.3.1 Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging Previous Version Cache');
+            console.log('SW: Purging Legacy Logic');
             return caches.delete(cacheName);
           }
         })
@@ -38,19 +38,16 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Ensure the SW takes immediate control of the active page */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Priority 1: Instant cache load for field reliability */
       if (response) {
         return response;
       }
       
-      /* Priority 2: Network fetch for live match synchronization */
       return fetch(event.request);
     })
   );
