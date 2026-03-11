@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   LOGIC LOCK BUILD - VERSION 4.0.7
-   FULL VOLUME RESTORATION
+   ELEMENT LOCK BUILD - VERSION 4.0.8
+   FULL VOLUME Logic
 */
 
-const CACHE_NAME = 'match-edition-v4.0.7-final';
+const CACHE_NAME = 'match-edition-v4.0.8-stable';
 
 const ASSETS = [
   './',
@@ -13,9 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  /* Force the update to take effect immediately */
   self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
+      console.log('SW: Opening fresh cache for v4.0.8');
       return cache.addAll(ASSETS);
     })
   );
@@ -27,19 +30,27 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('SW: Purging old logic cache');
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  
+  /* Take control of all open pages */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      /* Return from cache if possible, otherwise fetch */
+      if (response) {
+        return response;
+      }
+      
+      return fetch(event.request);
     })
   );
 });
