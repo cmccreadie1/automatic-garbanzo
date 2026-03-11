@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   STABILITY RELEASE - VERSION 4.2.1
-   GRACE PERIOD RECONSTRUCTION
+   STABILITY RELEASE - VERSION 4.2.2
+   GRACE-LOCK ENGINE RE-ARCHITECTURE
 */
 
-const CACHE_NAME = 'match-edition-v4.2.1-gracefix';
+const CACHE_NAME = 'match-edition-v4.2.2-gracelock';
 
 const ASSETS = [
   './',
@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching 4.2.1 Grace Period Fix');
+      console.log('SW: Caching 4.2.2 Logic-Lock Assets');
       return cache.addAll(ASSETS);
     })
   );
