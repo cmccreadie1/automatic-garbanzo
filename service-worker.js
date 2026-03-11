@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VERSION 4.3.2 - TERMINAL SHUTDOWN
+   VERSION 4.3.3 - LOBBY FACTORY RESET
    FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.3.2-shutdown';
+const CACHE_NAME = 'match-edition-v4.3.3-reset';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Immediate takeover of the terminal lockdown logic */
+  /* Force immediate takeover of the factory reset logic */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Gold Master 4.3.2 Assets');
+      console.log('SW: Caching Gold Master 4.3.3 Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging Previous Version Cache');
+            console.log('SW: Purging Legacy Logic');
             return caches.delete(cacheName);
           }
         })
@@ -38,19 +38,19 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Finalize synchronization across all open instances */
+  /* Synchronize all clients to ensure reset logic is universal */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Priority 1: Instant cache load for match site stability */
+      /* Priority 1: Instant cache load for match-site reliability */
       if (response) {
         return response;
       }
       
-      /* Priority 2: Network fetch for live cloud data updates */
+      /* Priority 2: Network fetch for live data sync */
       return fetch(event.request);
     })
   );
