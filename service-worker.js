@@ -1,4 +1,4 @@
-const CACHE_NAME = 'match-edition-v3.7';
+const CACHE_NAME = 'match-edition-v3.8';
 const ASSETS = [
   './',
   './index.html',
@@ -36,4 +36,4 @@ self.addEventListener('fetch', (event) => {
       return response || fetch(event.request);
     })
   );
-});
+})
