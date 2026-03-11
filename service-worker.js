@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   VERSION 4.3.5 - UPDATE ENGINE FIX
+   VERSION 4.3.6 - PRECISION LINK
    FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.3.5-final';
+const CACHE_NAME = 'match-edition-v4.3.6-timer-fix';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force immediate takeover to ensure the keyboard layout fix applies */
+  /* Force immediate activation to repair the timer UI link */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching Gold Master 4.3.5 Assets');
+      console.log('SW: Caching Gold Master 4.3.6 Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging Legacy Cache');
+            console.log('SW: Purging Legacy Logic');
             return caches.delete(cacheName);
           }
         })
@@ -38,14 +38,14 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Synchronize all clients immediately */
+  /* Synchronize all clients to ensure visual links are restored */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Priority 1: Speed - Instant load from cache */
+      /* Priority 1: Speed - Instant load from cache for beach use */
       if (response) {
         return response;
       }
