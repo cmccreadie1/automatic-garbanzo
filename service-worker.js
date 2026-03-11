@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   STABILITY RELEASE - VERSION 4.2.2
-   GRACE-LOCK ENGINE RE-ARCHITECTURE
+   VISUAL RESTORATION - VERSION 4.2.3
+   FULL VOLUME Logic
 */
 
-const CACHE_NAME = 'match-edition-v4.2.2-gracelock';
+const CACHE_NAME = 'match-edition-v4.2.3-hype-restored';
 
 const ASSETS = [
   './',
@@ -13,10 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
+  /* Force immediate activation */
   self.skipWaiting();
+  
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Caching 4.2.2 Logic-Lock Assets');
+      console.log('SW: Caching Restoration Build 4.2.3');
       return cache.addAll(ASSETS);
     })
   );
@@ -28,19 +30,25 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('SW: Removing outdated logic');
             return caches.delete(cacheName);
           }
         })
       );
     })
   );
+  
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
+      if (response) {
+        return response;
+      }
+      
+      return fetch(event.request);
     })
   );
 });
