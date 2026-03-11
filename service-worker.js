@@ -1,9 +1,9 @@
 /* SEA DIARY: MATCH EDITION 
-   ELEMENT LOCK BUILD - VERSION 4.0.8
-   FULL VOLUME Logic
+   VERSION 4.2.0 - PROFESSIONAL STRIKE
+   FULL VOLUME SERVICE WORKER
 */
 
-const CACHE_NAME = 'match-edition-v4.0.8-stable';
+const CACHE_NAME = 'match-edition-v4.2.0-pro';
 
 const ASSETS = [
   './',
@@ -13,12 +13,12 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (event) => {
-  /* Force the update to take effect immediately */
+  /* Force immediate takeover */
   self.skipWaiting();
   
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      console.log('SW: Opening fresh cache for v4.0.8');
+      console.log('SW: Caching Gold Master 4.2.0 Assets');
       return cache.addAll(ASSETS);
     })
   );
@@ -30,7 +30,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SW: Purging old logic cache');
+            console.log('SW: Purging Legacy Logic');
             return caches.delete(cacheName);
           }
         })
@@ -38,14 +38,12 @@ self.addEventListener('activate', (event) => {
     })
   );
   
-  /* Take control of all open pages */
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((response) => {
-      /* Return from cache if possible, otherwise fetch */
       if (response) {
         return response;
       }
